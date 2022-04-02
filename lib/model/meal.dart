@@ -17,6 +17,6 @@ class Meal {
         ingredients = res["ingredients"];
 
   Map<String, Object?> toMap() {
-    return {'id':id,'name': name, 'ingredients': ingredients};
+    return {'id': id, 'name': name, 'ingredients': ingredients};
   }
 }
