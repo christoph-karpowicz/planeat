@@ -1,10 +1,10 @@
 class MealItem {
-  final int? id;
-  final int? mealId;
-  final DateTime date;
+  final int id;
+  final int mealId;
+  final String date;
 
   MealItem({
-    this.id,
+    required this.id,
     required this.mealId,
     required this.date,
   });

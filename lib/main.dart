@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:planeat/db/db_handler.dart';
-import 'package:planeat/model/meal_item.dart';
+import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
@@ -49,7 +49,7 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   // late Database db;
-  late final ValueNotifier<List<MealItem>> _selectedEvents;
+  late final ValueNotifier<List<MealItemDto>> _selectedEvents;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -64,8 +64,8 @@ class _CalendarViewState extends State<CalendarView> {
   void initState() {
     super.initState();
 
-    // _selectedDay = _focusedDay;
-    _selectedEvents = ValueNotifier(<MealItem>[]);
+    _selectedDay = _focusedDay;
+    _selectedEvents = ValueNotifier(<MealItemDto>[]);
   }
 
   @override
@@ -75,10 +75,11 @@ class _CalendarViewState extends State<CalendarView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TableCalendar<MealItem>(
-              firstDay: DateTime.utc(2010, 10, 16),
-              lastDay: DateTime.utc(2030, 3, 14),
+            TableCalendar<MealItemDto>(
+              firstDay: DateTime.utc(2022, 1, 1),
+              lastDay: DateTime.utc(2032, 1, 1),
               focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
               headerVisible: true,
               calendarFormat: CalendarFormat.month,
               startingDayOfWeek: StartingDayOfWeek.monday,
@@ -90,7 +91,7 @@ class _CalendarViewState extends State<CalendarView> {
             ),
             const SizedBox(height: 8.0),
             Expanded(
-              child: ValueListenableBuilder<List<MealItem>>(
+              child: ValueListenableBuilder<List<MealItemDto>>(
                 valueListenable: _selectedEvents,
                 builder: (context, value, _) {
                   return ListView.builder(
@@ -107,7 +108,7 @@ class _CalendarViewState extends State<CalendarView> {
                         ),
                         child: ListTile(
                           onTap: () => print('${value[index]}'),
-                          title: Text('${value[index].mealId}'),
+                          title: Text('${value[index].name}'),
                         ),
                       );
                     },
@@ -131,23 +132,32 @@ class _CalendarViewState extends State<CalendarView> {
       setState(() {
         _selectedDay = selectedDay;
         _focusedDay = focusedDay;
-        _rangeStart = null; // Important to clean those
+        _rangeStart = null;
         _rangeEnd = null;
         _rangeSelectionMode = RangeSelectionMode.toggledOff;
       });
 
-      _selectedEvents.value = await _getEventsForDay(selectedDay);
+      _selectedEvents.value = await _getMealsForDay(selectedDay);
     }
   }
 
-  Future<List<MealItem>> _getEventsForDay(DateTime date) async {
+  Future<List<MealItemDto>> _getMealsForDay(DateTime date) async {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final String dateFormatted = formatter.format(date);
-    print(dateFormatted);
     final List<Map<String, dynamic>> maps = await db.rawQuery(
-        'SELECT meal.name, meal_item.date '
-        'FROM meal_item INNER JOIN meal ON meal_item.meal_id = meal.id');
-    print(maps);
-    return <MealItem>[MealItem(id: 1, mealId: 1, date: DateTime.now())];
+        "SELECT meal.name, meal_item.date "
+        "FROM meal_item INNER JOIN meal ON meal_item.meal_id = meal.id "
+        "WHERE strftime('%Y-%m-%d', meal_item.date) = ?",
+        <String>[dateFormatted]);
+
+    List<MealItemDto> mealsForDay = List.generate(maps.length, (i) {
+      return MealItemDto(
+        name: maps[i]['name'],
+        date: DateTime.parse(maps[i]['date']),
+      );
+    });
+    mealsForDay.sort((a,b) => a.date.compareTo(b.date));
+
+    return mealsForDay;
   }
 }
