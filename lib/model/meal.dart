@@ -1,5 +1,3 @@
-import 'package:planeat/model/ingredient.dart';
-
 class Meal {
   final int id;
   final String name;

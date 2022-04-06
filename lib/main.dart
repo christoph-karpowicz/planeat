@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:planeat/db/db_handler.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
+import 'package:planeat/model/meal.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
@@ -10,8 +11,9 @@ late Database db;
 Future<void> main() async {
   print("Start app.");
   try {
-    runApp(PlaneatApp());
+    WidgetsFlutterBinding.ensureInitialized();
     db = await DatabaseHandler().initializeDB();
+    runApp(PlaneatApp());
   } catch (err) {
     print(err.toString());
   }
@@ -49,12 +51,13 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   // late Database db;
-  late final ValueNotifier<List<MealItemDto>> _selectedEvents;
+  late final ValueNotifier<List<MealItemDto>> _selectedMeals;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
+  List<Meal> availableMeals = <Meal>[];
 
   // _CalendarViewState(Database db) {
   //   this.db = db;
@@ -64,8 +67,17 @@ class _CalendarViewState extends State<CalendarView> {
   void initState() {
     super.initState();
 
+    loadMeals();
+
     _selectedDay = _focusedDay;
-    _selectedEvents = ValueNotifier(<MealItemDto>[]);
+    _selectedMeals = ValueNotifier(<MealItemDto>[]);
+  }
+
+  void loadMeals() async {
+    final List<Map<String, dynamic>> maps = await db.query('meal');
+    availableMeals = List.generate(
+        maps.length,
+        (i) => Meal(id: maps[i]['id'], name: maps[i]['name']));
   }
 
   @override
@@ -73,6 +85,7 @@ class _CalendarViewState extends State<CalendarView> {
     return Scaffold(
       body: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TableCalendar<MealItemDto>(
@@ -90,13 +103,15 @@ class _CalendarViewState extends State<CalendarView> {
               onDaySelected: _onDaySelected,
             ),
             const SizedBox(height: 8.0),
-            Expanded(
+            Container(
               child: ValueListenableBuilder<List<MealItemDto>>(
-                valueListenable: _selectedEvents,
-                builder: (context, value, _) {
+                valueListenable: _selectedMeals,
+                builder: (context, items, _) {
                   return ListView.builder(
-                    itemCount: value.length,
+                    itemCount: items.length,
                     itemBuilder: (context, index) {
+                      MealItemDto item = items[index];
+
                       return Container(
                         margin: const EdgeInsets.symmetric(
                           horizontal: 12.0,
@@ -107,15 +122,79 @@ class _CalendarViewState extends State<CalendarView> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: ListTile(
-                          onTap: () => print('${value[index]}'),
-                          title: Text('${value[index].name}'),
+                          onTap: () => print('${item}'),
+                          title: Text('${DateFormat('HH:mm:ss').format(item.date)} | ${item.name}'),
                         ),
                       );
                     },
+                    shrinkWrap: true,
                   );
                 },
               ),
             ),
+            Row(
+              children: [
+                Expanded(child: Container(
+                  margin: EdgeInsets.only(
+                    left: 10.0,
+                    right: 10.0,
+                  ),
+                  height: 60,
+                  child: ListView.builder(
+                    itemCount: availableMeals.length,
+                    itemBuilder: (context, index) {
+                      final String mealName = availableMeals[index].name;
+
+                      return InkWell(
+                        child: Container(
+                          padding: EdgeInsets.only(
+                            left: 30.0,
+                            right: 30.0,
+                          ),
+                          margin: EdgeInsets.all(5.0),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                          ),
+                          child: Text(
+                            mealName,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          print("Tapped on container $mealName");
+                        },
+                      );
+                    },
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                  ),
+                )
+                )
+              ],
+            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     ConstrainedBox(
+            //       constraints: BoxConstraints.tightFor(height: 50),
+            //       child: ElevatedButton(
+            //         style: ElevatedButton.styleFrom(
+            //             textStyle: const TextStyle(fontSize: 20),
+            //             primary: Colors.blueGrey
+            //         ),
+            //         onPressed: () {},
+            //         child: const Text('Add meal'),
+            //       ),
+            //     ),
+            //   ]
+            // ),
+            Expanded(child: const SizedBox(),)
           ],
         ),
       ),
@@ -137,7 +216,7 @@ class _CalendarViewState extends State<CalendarView> {
         _rangeSelectionMode = RangeSelectionMode.toggledOff;
       });
 
-      _selectedEvents.value = await _getMealsForDay(selectedDay);
+      _selectedMeals.value = await _getMealsForDay(selectedDay);
     }
   }
 
@@ -150,12 +229,10 @@ class _CalendarViewState extends State<CalendarView> {
         "WHERE strftime('%Y-%m-%d', meal_item.date) = ?",
         <String>[dateFormatted]);
 
-    List<MealItemDto> mealsForDay = List.generate(maps.length, (i) {
-      return MealItemDto(
-        name: maps[i]['name'],
-        date: DateTime.parse(maps[i]['date']),
-      );
-    });
+    List<MealItemDto> mealsForDay = List.generate(maps.length, (i) => MealItemDto(
+      name: maps[i]['name'],
+      date: DateTime.parse(maps[i]['date']),
+    ));
     mealsForDay.sort((a,b) => a.date.compareTo(b.date));
 
     return mealsForDay;
