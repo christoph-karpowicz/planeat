@@ -54,7 +54,7 @@ class _CalendarViewState extends State<CalendarView> {
   late final ValueNotifier<List<MealItemDto>> _selectedMeals;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  DateTime _selectedDay = DateTime.now();
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
   List<Meal> availableMeals = <Meal>[];
@@ -100,10 +100,23 @@ class _CalendarViewState extends State<CalendarView> {
                 titleCentered: true,
                 formatButtonVisible: false,
               ),
+              calendarStyle: CalendarStyle(
+                selectedDecoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                ),
+                todayDecoration: BoxDecoration(
+                  color: Colors.orangeAccent,
+                  shape: BoxShape.circle,
+                ),
+              ),
               onDaySelected: _onDaySelected,
             ),
             const SizedBox(height: 8.0),
-            Container(
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 400.0,
+              ),
               child: ValueListenableBuilder<List<MealItemDto>>(
                 valueListenable: _selectedMeals,
                 builder: (context, items, _) {
@@ -143,6 +156,7 @@ class _CalendarViewState extends State<CalendarView> {
                   child: ListView.builder(
                     itemCount: availableMeals.length,
                     itemBuilder: (context, index) {
+                      final int mealId = availableMeals[index].id;
                       final String mealName = availableMeals[index].name;
 
                       return InkWell(
@@ -166,9 +180,7 @@ class _CalendarViewState extends State<CalendarView> {
                             ),
                           ),
                         ),
-                        onTap: () {
-                          print("Tapped on container $mealName");
-                        },
+                        onTap: () => selectMealTime(mealId),
                       );
                     },
                     shrinkWrap: true,
@@ -178,22 +190,6 @@ class _CalendarViewState extends State<CalendarView> {
                 )
               ],
             ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     ConstrainedBox(
-            //       constraints: BoxConstraints.tightFor(height: 50),
-            //       child: ElevatedButton(
-            //         style: ElevatedButton.styleFrom(
-            //             textStyle: const TextStyle(fontSize: 20),
-            //             primary: Colors.blueGrey
-            //         ),
-            //         onPressed: () {},
-            //         child: const Text('Add meal'),
-            //       ),
-            //     ),
-            //   ]
-            // ),
             Expanded(child: const SizedBox(),)
           ],
         ),
@@ -237,4 +233,24 @@ class _CalendarViewState extends State<CalendarView> {
 
     return mealsForDay;
   }
+
+  void selectMealTime(int mealId) async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (newTime != null) {
+      final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(_selectedDay);
+      final String newTimeHour = newTime.hour.toString().padLeft(2, "0");
+      final String newTimeMinutes = newTime.minute.toString().padLeft(2, "0");
+      String mealDate = "$selectedDayFormatted $newTimeHour:$newTimeMinutes:00.000Z";
+
+      await db.execute(
+          "INSERT INTO meal_item(meal_id, date) VALUES (?, ?)",
+          <Object>[mealId, mealDate]
+      );
+      _selectedMeals.value = await _getMealsForDay(_selectedDay);
+    }
+  }
+  
 }
