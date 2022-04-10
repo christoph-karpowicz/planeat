@@ -3,8 +3,10 @@ import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/model/meal.dart';
+import 'package:planeat/views/meal_form.dart';
 
 class MealsView extends StatefulWidget {
+  static const routeName = '/meals';
 
   @override
   _MealsViewState createState() => _MealsViewState();
@@ -12,7 +14,7 @@ class MealsView extends StatefulWidget {
 }
 
 class _MealsViewState extends State<MealsView> {
-  List<Meal> availableMeals = <Meal>[];
+  final ValueNotifier<List<Meal>> _availableMeals = ValueNotifier(<Meal>[]);
 
   @override
   void initState() {
@@ -21,7 +23,7 @@ class _MealsViewState extends State<MealsView> {
   }
 
   void loadMeals() async {
-    availableMeals = await MealDao.loadAll();
+    _availableMeals.value = await MealDao.loadAll();
   }
 
   @override
@@ -35,42 +37,55 @@ class _MealsViewState extends State<MealsView> {
         children: [
           Expanded(
             // Within the `FirstScreen` widget
-            child: ListView.builder(
-              itemCount: availableMeals.length,
-              itemBuilder: (context, index) {
-                final int mealId = availableMeals[index].id;
-                final String mealName = availableMeals[index].name;
+            child: ValueListenableBuilder<List<Meal>>(
+              valueListenable: _availableMeals,
+              builder: (context, items, _) {
+                return ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final int mealId = items[index].id;
+                    final String mealName = items[index].name;
 
-                return InkWell(
-                  child: Container(
-                    padding: EdgeInsets.only(
-                      left: 30.0,
-                      right: 30.0,
-                    ),
-                    margin: EdgeInsets.all(5.0),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                    ),
-                    child: Text(
-                      mealName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.bold,
+                    return InkWell(
+                      child: Container(
+                        padding: EdgeInsets.all(20.0),
+                        margin: EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: Colors.black38))
+                        ),
+                        child: Text(
+                          mealName,
+                          style: TextStyle(
+                            // color: Colors.white,
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  onTap: () => {},
+                      onTap: () => Navigator.pushNamed(
+                          context,
+                          MealFormView.routeName,
+                          arguments: MealFormViewArguments(mealId)
+                      ),
+                    );
+                  },
+                  shrinkWrap: true,
                 );
-              },
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
+              }
             ),
           ),
           Nav(NavIcon.meals),
         ]
+      ),
+      floatingActionButton: Container(
+        margin: EdgeInsets.only(bottom: 50.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            // Add your onPressed code here!
+          },
+          backgroundColor: Colors.green,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

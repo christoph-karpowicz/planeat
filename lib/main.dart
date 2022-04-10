@@ -5,6 +5,7 @@ import 'package:planeat/db/db_handler.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/model/meal.dart';
+import 'package:planeat/views/meal_form.dart';
 import 'package:planeat/views/meals_view.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
@@ -21,59 +22,56 @@ Future<void> main() async {
 }
 
 class PlaneatApp extends StatelessWidget {
-  // late Database db;
-  //
-  // PlaneatApp(Database db, {Key? key}) : super(key: key) {
-  //   this.db = db;
-  // }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Planeat',
-      initialRoute: '/calendar',
-      routes: {
-        '/calendar': (context) => CalendarView(),
-        '/meals': (context) => MealsView(),
+      initialRoute: CalendarView.routeName,
+      onGenerateRoute: (RouteSettings settings) {
+        var routes = <String, WidgetBuilder>{
+          CalendarView.routeName: (context) => CalendarView(),
+          MealsView.routeName: (context) => MealsView(),
+          MealFormView.routeName: (context) =>
+              MealFormView(arg: settings.arguments as MealFormViewArguments),
+        };
+        WidgetBuilder? builder = routes[settings.name];
+        if (builder == null) {
+          throw Exception("Unknown route name.");
+        }
+        return MaterialPageRoute(builder: (context) => builder(context));
       },
     );
   }
 }
 
 class CalendarView extends StatefulWidget {
-  // late Database db;
-  //
-  // CalendarView(Database db, {Key? key}) : super(key: key) {
-  //   this.db = db;
-  // }
+  static const routeName = '/calendar';
 
   @override
   _CalendarViewState createState() => _CalendarViewState();
 }
 
 class _CalendarViewState extends State<CalendarView> {
-  // late Database db;
   final ValueNotifier<List<MealItemDto>> _selectedMeals = ValueNotifier(<MealItemDto>[]);
+  final ValueNotifier<List<Meal>> _availableMeals = ValueNotifier(<Meal>[]);
   // RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   // DateTime? _rangeStart;
   // DateTime? _rangeEnd;
-  List<Meal> availableMeals = <Meal>[];
-
-  // _CalendarViewState(Database db) {
-  //   this.db = db;
-  // }
 
   @override
   void initState() {
     super.initState();
+    print("Init state...");
     loadMeals();
     _selectedDay = _focusedDay;
+    _onDaySelected(_selectedDay, _focusedDay);
   }
 
   void loadMeals() async {
-    availableMeals = await MealDao.loadAll();
+    _availableMeals.value = await MealDao.loadAll();
   }
 
   @override
@@ -147,38 +145,43 @@ class _CalendarViewState extends State<CalendarView> {
                     right: 10.0,
                   ),
                   height: 60,
-                  child: ListView.builder(
-                    itemCount: availableMeals.length,
-                    itemBuilder: (context, index) {
-                      final int mealId = availableMeals[index].id;
-                      final String mealName = availableMeals[index].name;
+                  child: ValueListenableBuilder<List<Meal>>(
+                    valueListenable: _availableMeals,
+                    builder: (context, items, _) {
+                      return ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final int mealId = items[index].id;
+                          final String mealName = items[index].name;
 
-                      return InkWell(
-                        child: Container(
-                          padding: EdgeInsets.only(
-                            left: 30.0,
-                            right: 30.0,
-                          ),
-                          margin: EdgeInsets.all(5.0),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                          ),
-                          child: Text(
-                            mealName,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17.0,
-                              fontWeight: FontWeight.bold,
+                          return InkWell(
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                left: 30.0,
+                                right: 30.0,
+                              ),
+                              margin: EdgeInsets.all(5.0),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                              ),
+                              child: Text(
+                                mealName,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        onTap: () => selectMealTime(mealId),
+                            onTap: () => selectMealTime(mealId),
+                          );
+                        },
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
                       );
                     },
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
                   ),
                 ),
               ),
@@ -191,16 +194,14 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) async {
-    if (!isSameDay(_selectedDay, selectedDay)) {
-      setState(() {
-        _selectedDay = selectedDay;
-        _focusedDay = focusedDay;
-        // _rangeStart = null;
-        // _rangeEnd = null;
-        // _rangeSelectionMode = RangeSelectionMode.toggledOff;
-      });
-      _selectedMeals.value = await _getMealsForDay(selectedDay);
-    }
+    setState(() {
+      _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
+      // _rangeStart = null;
+      // _rangeEnd = null;
+      // _rangeSelectionMode = RangeSelectionMode.toggledOff;
+    });
+    _selectedMeals.value = await _getMealsForDay(selectedDay);
   }
 
   Future<List<MealItemDto>> _getMealsForDay(DateTime date) async {

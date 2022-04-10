@@ -35,7 +35,7 @@ class Nav extends StatelessWidget {
                   )),
                   Expanded(child: InkWell(
                     child: Icon(
-                      Icons.list_alt,
+                      Icons.playlist_add_check,
                       color: getColor(NavIcon.shopping_lists),
                       size: 50.0,
                     ),
