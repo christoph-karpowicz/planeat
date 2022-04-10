@@ -83,71 +83,72 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TableCalendar<MealItemDto>(
-              firstDay: DateTime.utc(2022, 1, 1),
-              lastDay: DateTime.utc(2032, 1, 1),
-              focusedDay: _focusedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              headerVisible: true,
-              calendarFormat: CalendarFormat.month,
-              startingDayOfWeek: StartingDayOfWeek.monday,
-              headerStyle: HeaderStyle(
-                titleCentered: true,
-                formatButtonVisible: false,
-              ),
-              calendarStyle: CalendarStyle(
-                selectedDecoration: BoxDecoration(
-                  color: Colors.orange,
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  color: Colors.orangeAccent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              onDaySelected: _onDaySelected,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const SizedBox(height: 8.0),
+          TableCalendar<MealItemDto>(
+            firstDay: DateTime.utc(2022, 1, 1),
+            lastDay: DateTime.utc(2032, 1, 1),
+            focusedDay: _focusedDay,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            headerVisible: true,
+            calendarFormat: CalendarFormat.month,
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            headerStyle: HeaderStyle(
+              titleCentered: true,
+              formatButtonVisible: false,
             ),
-            const SizedBox(height: 8.0),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: 400.0,
+            calendarStyle: CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
               ),
-              child: ValueListenableBuilder<List<MealItemDto>>(
-                valueListenable: _selectedMeals,
-                builder: (context, items, _) {
-                  return ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      MealItemDto item = items[index];
+              todayDecoration: BoxDecoration(
+                color: Colors.lightGreen,
+                shape: BoxShape.circle,
+              ),
+            ),
+            onDaySelected: _onDaySelected,
+          ),
+          const SizedBox(height: 8.0),
+          Expanded(
+            // constraints: BoxConstraints(
+            //   maxHeight: 400.0,
+            // ),
+            child: ValueListenableBuilder<List<MealItemDto>>(
+              valueListenable: _selectedMeals,
+              builder: (context, items, _) {
+                return ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    MealItemDto item = items[index];
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 4.0,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        child: ListTile(
-                          onTap: () => print('${item}'),
-                          title: Text('${DateFormat('HH:mm:ss').format(item.date)} | ${item.name}'),
-                        ),
-                      );
-                    },
-                    shrinkWrap: true,
-                  );
-                },
-              ),
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 4.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: ListTile(
+                        onTap: () => print('${item}'),
+                        title: Text('${DateFormat('HH:mm:ss').format(item.date)} | ${item.name}'),
+                      ),
+                    );
+                  },
+                  shrinkWrap: true,
+                );
+              },
             ),
-            Row(
-              children: [
-                Expanded(child: Container(
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
                   margin: EdgeInsets.only(
                     left: 10.0,
                     right: 10.0,
@@ -168,7 +169,7 @@ class _CalendarViewState extends State<CalendarView> {
                           margin: EdgeInsets.all(5.0),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: Colors.orange,
+                            color: Colors.green,
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
                           child: Text(
@@ -186,19 +187,46 @@ class _CalendarViewState extends State<CalendarView> {
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
                   ),
-                )
-                )
-              ],
-            ),
-            Expanded(child: const SizedBox(),)
-          ],
-        ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 60,
+                  child: Row(
+                    children: [
+                      Expanded(child: InkWell(
+                        child: Icon(
+                          Icons.calendar_month,
+                          color: Colors.black,
+                          size: 50.0,
+                        ),
+                      )),
+                      Expanded(child: InkWell(
+                        child: Icon(
+                          Icons.food_bank_outlined,
+                          color: Colors.black,
+                          size: 50.0,
+                        ),
+                      )),
+                      Expanded(child: InkWell(
+                        child: Icon(
+                          Icons.list_alt,
+                          color: Colors.black,
+                          size: 50.0,
+                        ),
+                      )),
+                    ],
+                  )
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _incrementCounter,
-      //   tooltip: 'Increment',
-      //   child: Icon(Icons.add),
-      // ),
     );
   }
 
@@ -211,7 +239,6 @@ class _CalendarViewState extends State<CalendarView> {
         _rangeEnd = null;
         _rangeSelectionMode = RangeSelectionMode.toggledOff;
       });
-
       _selectedMeals.value = await _getMealsForDay(selectedDay);
     }
   }
@@ -252,5 +279,5 @@ class _CalendarViewState extends State<CalendarView> {
       _selectedMeals.value = await _getMealsForDay(_selectedDay);
     }
   }
-  
+
 }
