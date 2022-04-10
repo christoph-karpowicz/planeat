@@ -3,10 +3,12 @@ import 'package:path/path.dart';
 
 class DatabaseHandler {
 
-  Future<Database> initializeDB() async {
+  static late Database _db;
+
+  static Future<void> initializeDB() async {
     String path = await getDatabasesPath();
     print("Database path: $path");
-    return await openDatabase(
+    _db = await openDatabase(
       join(path, 'planeat.db'),
       onConfigure: (db) async {
         print("Initializing database...");
@@ -83,6 +85,10 @@ class DatabaseHandler {
       },
       version: 1,
     );
+  }
+
+  static Database getDb() {
+    return _db;
   }
 
 }

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/components/nav.dart';
+import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/db_handler.dart';
+import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/model/meal.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:planeat/views/meals_view.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
-
-late Database db;
 
 Future<void> main() async {
   print("Start app.");
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    db = await DatabaseHandler().initializeDB();
+    await DatabaseHandler.initializeDB();
     runApp(PlaneatApp());
   } catch (err) {
     print(err.toString());
@@ -30,10 +31,11 @@ class PlaneatApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Planeat',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: CalendarView(),
+      initialRoute: '/calendar',
+      routes: {
+        '/calendar': (context) => CalendarView(),
+        '/meals': (context) => MealsView(),
+      },
     );
   }
 }
@@ -51,12 +53,12 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   // late Database db;
-  late final ValueNotifier<List<MealItemDto>> _selectedMeals;
-  RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
+  final ValueNotifier<List<MealItemDto>> _selectedMeals = ValueNotifier(<MealItemDto>[]);
+  // RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
-  DateTime? _rangeStart;
-  DateTime? _rangeEnd;
+  // DateTime? _rangeStart;
+  // DateTime? _rangeEnd;
   List<Meal> availableMeals = <Meal>[];
 
   // _CalendarViewState(Database db) {
@@ -66,18 +68,12 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   void initState() {
     super.initState();
-
     loadMeals();
-
     _selectedDay = _focusedDay;
-    _selectedMeals = ValueNotifier(<MealItemDto>[]);
   }
 
   void loadMeals() async {
-    final List<Map<String, dynamic>> maps = await db.query('meal');
-    availableMeals = List.generate(
-        maps.length,
-        (i) => Meal(id: maps[i]['id'], name: maps[i]['name']));
+    availableMeals = await MealDao.loadAll();
   }
 
   @override
@@ -114,9 +110,6 @@ class _CalendarViewState extends State<CalendarView> {
           ),
           const SizedBox(height: 8.0),
           Expanded(
-            // constraints: BoxConstraints(
-            //   maxHeight: 400.0,
-            // ),
             child: ValueListenableBuilder<List<MealItemDto>>(
               valueListenable: _selectedMeals,
               builder: (context, items, _) {
@@ -191,40 +184,7 @@ class _CalendarViewState extends State<CalendarView> {
               ),
             ],
           ),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 60,
-                  child: Row(
-                    children: [
-                      Expanded(child: InkWell(
-                        child: Icon(
-                          Icons.calendar_month,
-                          color: Colors.black,
-                          size: 50.0,
-                        ),
-                      )),
-                      Expanded(child: InkWell(
-                        child: Icon(
-                          Icons.food_bank_outlined,
-                          color: Colors.black,
-                          size: 50.0,
-                        ),
-                      )),
-                      Expanded(child: InkWell(
-                        child: Icon(
-                          Icons.list_alt,
-                          color: Colors.black,
-                          size: 50.0,
-                        ),
-                      )),
-                    ],
-                  )
-                ),
-              ),
-            ],
-          ),
+          Nav(NavIcon.calendar),
         ],
       ),
     );
@@ -235,9 +195,9 @@ class _CalendarViewState extends State<CalendarView> {
       setState(() {
         _selectedDay = selectedDay;
         _focusedDay = focusedDay;
-        _rangeStart = null;
-        _rangeEnd = null;
-        _rangeSelectionMode = RangeSelectionMode.toggledOff;
+        // _rangeStart = null;
+        // _rangeEnd = null;
+        // _rangeSelectionMode = RangeSelectionMode.toggledOff;
       });
       _selectedMeals.value = await _getMealsForDay(selectedDay);
     }
@@ -246,7 +206,7 @@ class _CalendarViewState extends State<CalendarView> {
   Future<List<MealItemDto>> _getMealsForDay(DateTime date) async {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final String dateFormatted = formatter.format(date);
-    final List<Map<String, dynamic>> maps = await db.rawQuery(
+    final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb().rawQuery(
         "SELECT meal.name, meal_item.date "
         "FROM meal_item INNER JOIN meal ON meal_item.meal_id = meal.id "
         "WHERE strftime('%Y-%m-%d', meal_item.date) = ?",
@@ -272,7 +232,7 @@ class _CalendarViewState extends State<CalendarView> {
       final String newTimeMinutes = newTime.minute.toString().padLeft(2, "0");
       String mealDate = "$selectedDayFormatted $newTimeHour:$newTimeMinutes:00.000Z";
 
-      await db.execute(
+      await DatabaseHandler.getDb().execute(
           "INSERT INTO meal_item(meal_id, date) VALUES (?, ?)",
           <Object>[mealId, mealDate]
       );
