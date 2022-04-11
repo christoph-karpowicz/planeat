@@ -81,7 +81,11 @@ class _MealsViewState extends State<MealsView> {
         margin: EdgeInsets.only(bottom: 50.0),
         child: FloatingActionButton(
           onPressed: () {
-            // Add your onPressed code here!
+            Navigator.pushNamed(
+                context,
+                MealFormView.routeName,
+                arguments: MealFormViewArguments(null)
+            );
           },
           backgroundColor: Colors.green,
           child: const Icon(Icons.add),

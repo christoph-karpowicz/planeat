@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:planeat/components/nav.dart';
-import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/model/meal.dart';
 
 class MealFormViewArguments {
-  final int mealId;
+  final int? mealId;
 
   MealFormViewArguments(this.mealId);
 }
@@ -22,19 +20,24 @@ class MealFormView extends StatefulWidget {
 }
 
 class _MealFormViewState extends State<MealFormView> {
-  late Meal? _meal = null;
+  bool _createMode = false;
+  bool _editMode = false;
+  Meal? _meal;
 
   @override
   void initState() {
     super.initState();
-    loadMeal();
+    int? mealId = this.widget.arg?.mealId;
+    if (mealId != null) {
+      loadMeal(mealId);
+    } else {
+      setState(() {
+        _createMode = true;
+      });
+    }
   }
 
-  void loadMeal() async {
-    int? mealId = this.widget.arg?.mealId;
-    if (mealId == null) {
-      return;
-    }
+  void loadMeal(int mealId) async {
     Meal? meal = await MealDao.getById(mealId);
     setState(() {
       _meal = meal;
@@ -43,21 +46,40 @@ class _MealFormViewState extends State<MealFormView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_meal == null) {
-      return Scaffold(
-          body: Center(child: CircularProgressIndicator())
-      );
-    }
+    // if (_meal == null) {
+    //   return Scaffold(
+    //       body: Center(child: CircularProgressIndicator())
+    //   );
+    // }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_meal!.name),
+        title: Text(_getMealName()),
         backgroundColor: Colors.lightGreen,
       ),
       body: Column(
           children: [
-            Expanded(
-              child: Text("test")
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text("Meal name: "),
+                    flex: 1,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      controller: TextEditingController(text: _getMealName()),
+                      decoration: InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: _isEditable() ? 'enter the meal name' : null,
+                        enabled: _isEditable(),
+                      ),
+                    ),
+                    flex: 2,
+                  )
+                ],
+              )
             ),
           ]
       ),
@@ -72,5 +94,13 @@ class _MealFormViewState extends State<MealFormView> {
         ),
       ),
     );
+  }
+
+  String _getMealName() {
+    return _meal == null ? "" : _meal!.name;
+  }
+
+  bool _isEditable() {
+    return _editMode || _createMode;
   }
 }

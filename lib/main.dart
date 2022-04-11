@@ -28,16 +28,18 @@ class PlaneatApp extends StatelessWidget {
     return MaterialApp(
       title: 'Planeat',
       initialRoute: CalendarView.routeName,
+      routes: {
+        CalendarView.routeName: (context) => CalendarView(),
+        MealsView.routeName: (context) => MealsView(),
+      },
       onGenerateRoute: (RouteSettings settings) {
         var routes = <String, WidgetBuilder>{
-          CalendarView.routeName: (context) => CalendarView(),
-          MealsView.routeName: (context) => MealsView(),
           MealFormView.routeName: (context) =>
               MealFormView(arg: settings.arguments as MealFormViewArguments),
         };
         WidgetBuilder? builder = routes[settings.name];
         if (builder == null) {
-          throw Exception("Unknown route name.");
+          return null;
         }
         return MaterialPageRoute(builder: (context) => builder(context));
       },
