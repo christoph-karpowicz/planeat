@@ -23,6 +23,7 @@ class _MealFormViewState extends State<MealFormView> {
   bool _createMode = false;
   bool _editMode = false;
   Meal? _meal;
+  String _mealName = "";
 
   @override
   void initState() {
@@ -39,9 +40,12 @@ class _MealFormViewState extends State<MealFormView> {
 
   void loadMeal(int mealId) async {
     Meal? meal = await MealDao.getById(mealId);
-    setState(() {
-      _meal = meal;
-    });
+    if (meal != null) {
+      setState(() {
+        _meal = meal;
+        _mealName = meal.name;
+      });
+    }
   }
 
   @override
@@ -54,53 +58,89 @@ class _MealFormViewState extends State<MealFormView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_getMealName()),
+        title: Text(_mealName),
         backgroundColor: Colors.lightGreen,
       ),
       body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text("Meal name: "),
-                    flex: 1,
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      controller: TextEditingController(text: _getMealName()),
-                      decoration: InputDecoration(
-                        border: UnderlineInputBorder(),
-                        labelText: _isEditable() ? 'enter the meal name' : null,
-                        enabled: _isEditable(),
-                      ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text("Meal name: "),
+                  flex: 1,
+                ),
+                Expanded(
+                  child: TextFormField(
+                    controller: TextEditingController(text: _mealName),
+                    decoration: InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: _isEditable() ? 'enter the meal name' : null,
+                      enabled: _isEditable(),
                     ),
-                    flex: 2,
-                  )
-                ],
-              )
-            ),
-          ]
+                  ),
+                  flex: 2,
+                )
+              ],
+            )
+          ),
+        ],
       ),
-      floatingActionButton: Container(
-        margin: EdgeInsets.only(bottom: 50.0),
-        child: FloatingActionButton(
-          onPressed: () {
-            // Add your onPressed code here!
-          },
-          backgroundColor: Colors.green,
-          child: const Icon(Icons.add),
-        ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (!_editMode && !_createMode) Container(
+            margin: EdgeInsets.only(left: 3.0, right: 3.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  _editMode = true;
+                });
+              },
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.edit),
+            ),
+          ),
+          if (_editMode || _createMode) Container(
+            margin: EdgeInsets.only(left: 3.0, right: 3.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                if (_createMode) {
+                  Navigator.pop(context);
+                } else {
+                  _resetMealName();
+                  setState(() {
+                    _editMode = false;
+                  });
+                }
+              },
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.cancel),
+            ),
+          ),
+          if (_editMode || _createMode) Container(
+            margin: EdgeInsets.only(left: 3.0, right: 3.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                // Add your onPressed code here!
+              },
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.save),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  String _getMealName() {
-    return _meal == null ? "" : _meal!.name;
-  }
-
   bool _isEditable() {
     return _editMode || _createMode;
+  }
+
+  void _resetMealName() {
+    setState(() {
+      _mealName = _meal!.name;
+    });
   }
 }
