@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/db/ingredient_dao.dart';
 import 'package:planeat/db/meal_dao.dart';
+import 'package:planeat/model/ingredient.dart';
 import 'package:planeat/model/meal.dart';
 
 class MealFormViewArguments {
@@ -20,17 +22,21 @@ class MealFormView extends StatefulWidget {
 }
 
 class _MealFormViewState extends State<MealFormView> {
+  final EdgeInsets _buttonMargin = EdgeInsets.only(left: 3.0, right: 3.0);
+
   bool _createMode = false;
   bool _editMode = false;
   Meal? _meal;
   String _mealName = "";
+  List<Ingredient> _ingredients = <Ingredient>[];
 
   @override
   void initState() {
     super.initState();
     int? mealId = this.widget.arg?.mealId;
     if (mealId != null) {
-      loadMeal(mealId);
+      _loadMeal(mealId);
+      _loadIngredients(mealId);
     } else {
       setState(() {
         _createMode = true;
@@ -38,7 +44,7 @@ class _MealFormViewState extends State<MealFormView> {
     }
   }
 
-  void loadMeal(int mealId) async {
+  void _loadMeal(int mealId) async {
     Meal? meal = await MealDao.getById(mealId);
     if (meal != null) {
       setState(() {
@@ -46,6 +52,14 @@ class _MealFormViewState extends State<MealFormView> {
         _mealName = meal.name;
       });
     }
+  }
+
+  void _loadIngredients(int mealId) async {
+    List<Ingredient> ingredients = await IngredientDao.getByMealId(mealId);
+    print(ingredients);
+    setState(() {
+      _ingredients = ingredients;
+    });
   }
 
   @override
@@ -76,7 +90,6 @@ class _MealFormViewState extends State<MealFormView> {
                     controller: TextEditingController(text: _mealName),
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(),
-                      labelText: _isEditable() ? 'enter the meal name' : null,
                       enabled: _isEditable(),
                     ),
                   ),
@@ -85,13 +98,65 @@ class _MealFormViewState extends State<MealFormView> {
               ],
             )
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text("Ingredients: "),
+                ],
+              )
+          ),
+          Expanded(
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView.builder(
+                    itemCount: _ingredients.length,
+                    itemBuilder: (context, index) {
+                      final int ingredientId = _ingredients[index].id;
+                      final String ingredientName = _ingredients[index].name;
+                      final String ingredientQuantity = _ingredients[index].quantity;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: TextEditingController(text: ingredientName),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: _isEditable() ? 'ingredient name' : null,
+                                  enabled: _isEditable(),
+                                ),
+                              ),
+                              flex: 3,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                controller: TextEditingController(text: ingredientQuantity),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: _isEditable() ? 'quantity' : null,
+                                  enabled: _isEditable(),
+                                ),
+                              ),
+                              flex: 1,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  )
+                ),
+          )
         ],
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           if (!_editMode && !_createMode) Container(
-            margin: EdgeInsets.only(left: 3.0, right: 3.0),
+            margin: _buttonMargin,
             child: FloatingActionButton(
               onPressed: () {
                 setState(() {
@@ -103,7 +168,7 @@ class _MealFormViewState extends State<MealFormView> {
             ),
           ),
           if (_editMode || _createMode) Container(
-            margin: EdgeInsets.only(left: 3.0, right: 3.0),
+            margin: _buttonMargin,
             child: FloatingActionButton(
               onPressed: () {
                 if (_createMode) {
@@ -120,7 +185,7 @@ class _MealFormViewState extends State<MealFormView> {
             ),
           ),
           if (_editMode || _createMode) Container(
-            margin: EdgeInsets.only(left: 3.0, right: 3.0),
+            margin: _buttonMargin,
             child: FloatingActionButton(
               onPressed: () {
                 // Add your onPressed code here!
