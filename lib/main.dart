@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/components/main_meal_stack.dart';
 import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/db_handler.dart';
@@ -118,20 +119,7 @@ class _CalendarViewState extends State<CalendarView> {
                   itemBuilder: (context, index) {
                     MealItemDto item = items[index];
 
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: ListTile(
-                        onTap: () => print('${item}'),
-                        title: Text('${DateFormat('HH:mm:ss').format(item.date)} | ${item.name}'),
-                      ),
-                    );
+                    return MainMealStack(item);
                   },
                   shrinkWrap: true,
                 );
