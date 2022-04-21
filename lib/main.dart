@@ -4,6 +4,7 @@ import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/db_handler.dart';
 import 'package:planeat/db/meal_dao.dart';
+import 'package:planeat/db/meal_item_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/model/meal.dart';
 import 'package:planeat/views/meal_form.dart';
@@ -119,7 +120,7 @@ class _CalendarViewState extends State<CalendarView> {
                   itemBuilder: (context, index) {
                     MealItemDto item = items[index];
 
-                    return MainMealStack(item);
+                    return MainMealStack(_reloadSelectedMeals, item);
                   },
                   shrinkWrap: true,
                 );
@@ -165,7 +166,7 @@ class _CalendarViewState extends State<CalendarView> {
                                 ),
                               ),
                             ),
-                            onTap: () => selectMealTime(mealId),
+                            onTap: () => _selectMealTime(mealId),
                           );
                         },
                         shrinkWrap: true,
@@ -191,28 +192,10 @@ class _CalendarViewState extends State<CalendarView> {
       // _rangeEnd = null;
       // _rangeSelectionMode = RangeSelectionMode.toggledOff;
     });
-    _selectedMeals.value = await _getMealsForDay(selectedDay);
+    _reloadSelectedMeals();
   }
 
-  Future<List<MealItemDto>> _getMealsForDay(DateTime date) async {
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
-    final String dateFormatted = formatter.format(date);
-    final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb().rawQuery(
-        "SELECT meal.name, meal_item.date "
-        "FROM meal_item INNER JOIN meal ON meal_item.meal_id = meal.id "
-        "WHERE strftime('%Y-%m-%d', meal_item.date) = ?",
-        <String>[dateFormatted]);
-
-    List<MealItemDto> mealsForDay = List.generate(maps.length, (i) => MealItemDto(
-      name: maps[i]['name'],
-      date: DateTime.parse(maps[i]['date']),
-    ));
-    mealsForDay.sort((a,b) => a.date.compareTo(b.date));
-
-    return mealsForDay;
-  }
-
-  void selectMealTime(int mealId) async {
+  void _selectMealTime(int mealId) async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -223,12 +206,13 @@ class _CalendarViewState extends State<CalendarView> {
       final String newTimeMinutes = newTime.minute.toString().padLeft(2, "0");
       String mealDate = "$selectedDayFormatted $newTimeHour:$newTimeMinutes:00.000Z";
 
-      await DatabaseHandler.getDb().execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES (?, ?)",
-          <Object>[mealId, mealDate]
-      );
-      _selectedMeals.value = await _getMealsForDay(_selectedDay);
+      MealItemDao.save(mealId, mealDate);
+      _reloadSelectedMeals();
     }
+  }
+
+  void _reloadSelectedMeals() async {
+    _selectedMeals.value = await MealItemDao.loadAllFromDay(_selectedDay);
   }
 
 }
