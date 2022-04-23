@@ -112,25 +112,32 @@ class _CalendarViewState extends State<CalendarView> {
           ),
           const SizedBox(height: 8.0),
           Expanded(
-            child: ValueListenableBuilder<List<MealItemDto>>(
-              valueListenable: _selectedMeals,
-              builder: (context, items, _) {
-                return ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    MealItemDto item = items[index];
-
-                    return MainMealStack(_reloadSelectedMeals, item, _selectedDay);
-                  },
-                  shrinkWrap: true,
-                );
-              },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: Colors.grey)),
+              ),
+              child: ValueListenableBuilder<List<MealItemDto>>(
+                valueListenable: _selectedMeals,
+                builder: (context, items, _) {
+                  return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      MealItemDto item = items[index];
+                      return MainMealStack(_reloadSelectedMeals, item, _selectedDay);
+                    },
+                    shrinkWrap: true,
+                  );
+                },
+              ),
             ),
           ),
           Row(
             children: [
               Expanded(
                 child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: Colors.grey)),
+                  ),
                   margin: EdgeInsets.only(
                     left: 10.0,
                     right: 10.0,

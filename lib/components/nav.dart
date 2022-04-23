@@ -14,6 +14,9 @@ class Nav extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: Colors.grey)),
+              ),
               height: 60,
               child: Row(
                 children: [

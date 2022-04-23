@@ -16,6 +16,8 @@ class MainMealStack extends StatefulWidget {
 }
 
 class _MainMealStackState extends State<MainMealStack> {
+  static final double HEIGHT = 60.0;
+
   double _topLayerX = 0.0;
   bool _animation = false;
 
@@ -25,9 +27,10 @@ class _MainMealStackState extends State<MainMealStack> {
       child: Stack(
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 4.0,
+            margin: const EdgeInsets.only(
+              left: 12.0,
+              right: 12.0,
+              bottom: 6.0,
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.0),
@@ -85,7 +88,7 @@ class _MainMealStackState extends State<MainMealStack> {
                 ),
               ],
             ),
-            height: 60.0,
+            height: HEIGHT,
           ),
 
           AnimatedContainer(
@@ -94,20 +97,68 @@ class _MainMealStackState extends State<MainMealStack> {
             },
             duration: const Duration(milliseconds: 150),
             transform: Matrix4.translationValues(_topLayerX, 0, 0),
-            height: 60.0,
-            margin: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 4.0,
+            height: HEIGHT,
+            margin: const EdgeInsets.only(
+              left: 12.0,
+              right: 12.0,
+              bottom: 6.0,
             ),
             decoration: BoxDecoration(
               border: Border.all(),
               borderRadius: BorderRadius.circular(12.0),
               color: Colors.white,
             ),
-            child: ListTile(
-              onTap: () => print('${this.widget._item}'),
-              title: Text('${DateFormat('HH:mm:ss').format(this.widget._item.date)} | ${this.widget._item.name}'),
-            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    height: HEIGHT,
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.only(left: 5.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.access_time, size: 30.0,),
+                        Expanded(
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${DateFormat('HH:mm').format(this.widget._item.date)}',
+                              style: TextStyle(
+                                fontSize: 15.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  )
+                ),
+                Expanded(
+                  flex: 6,
+                  child: Container(
+                    height: HEIGHT,
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(left: 10.0),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        left: BorderSide(color: Colors.grey)
+                      ),
+                    ),
+                    child: Text(
+                      '${this.widget._item.name}',
+                      style: TextStyle(
+                        fontSize: 17.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+            // ListTile(
+            //   onTap: () => print('${this.widget._item}'),
+            //   title: Text('${DateFormat('HH:mm').format(this.widget._item.date)} | ${this.widget._item.name}'),
+            // ),
           ),
         ],
       ),
