@@ -11,6 +11,13 @@ class MealItemDao {
     );
   }
 
+  static void update(int id, String mealDate) async {
+    await DatabaseHandler.getDb().execute(
+        "UPDATE meal_item SET date = ? WHERE id = ?",
+        <Object>[mealDate, id]
+    );
+  }
+
   static Future<List<MealItemDto>> loadAllFromDay(DateTime date) async {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final String dateFormatted = formatter.format(date);

@@ -6,8 +6,9 @@ import 'package:intl/intl.dart';
 class MainMealStack extends StatefulWidget {
   final VoidCallback _reloadSelectedMeals;
   final MealItemDto _item;
+  DateTime _selectedDay;
 
-  MainMealStack(this._reloadSelectedMeals, this._item);
+  MainMealStack(this._reloadSelectedMeals, this._item, this._selectedDay);
 
   @override
   _MainMealStackState createState() => _MainMealStackState();
@@ -15,14 +16,8 @@ class MainMealStack extends StatefulWidget {
 }
 
 class _MainMealStackState extends State<MainMealStack> {
-  double _dragStartX = 0.0;
   double _topLayerX = 0.0;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   loadMeals();
-  // }
+  bool _animation = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +52,7 @@ class _MainMealStackState extends State<MainMealStack> {
                         size: 30.0,
                       ),
                       onPressed: () => {
-
+                        _selectNewTime()
                       },
                     ),
                     alignment: Alignment.centerLeft,
@@ -93,7 +88,11 @@ class _MainMealStackState extends State<MainMealStack> {
             height: 60.0,
           ),
 
-        Container(
+          AnimatedContainer(
+            onEnd: () => {
+              _setAnimation(false)
+            },
+            duration: const Duration(milliseconds: 150),
             transform: Matrix4.translationValues(_topLayerX, 0, 0),
             height: 60.0,
             margin: const EdgeInsets.symmetric(
@@ -113,27 +112,55 @@ class _MainMealStackState extends State<MainMealStack> {
         ],
       ),
 
-      onHorizontalDragStart: (details) => {
-        _setDragStartX(details.globalPosition.dx)
-      },
-      onHorizontalDragUpdate: (details) => {
-        _setTopLayerX(details.globalPosition.dx)
+      onPanUpdate: (details) {
+        // Swiping in right direction.
+        if (details.delta.dx > 0) {
+          _setTopLayerX(1);
+        }
+        // Swiping in left direction.
+        if (details.delta.dx < 0) {
+          _setTopLayerX(-1);
+        }
       },
     );
   }
 
-  void _setDragStartX(double startX) {
+  void _setAnimation(bool isOn) {
     setState(() {
-      _dragStartX = startX;
+      _animation = isOn;
     });
   }
 
-  void _setTopLayerX(double x) {
-    double offset = x - _dragStartX;
-    if (offset.abs() <= 50.0) {
-      setState(() {
-        _topLayerX = offset;
-      });
+  void _setTopLayerX(int direction) {
+    if (_animation) {
+      return;
+    }
+    _setAnimation(true);
+    double offset;
+    if (_topLayerX == 0) {
+      offset = direction * 50.0;
+    } else {
+      offset = 0.0;
+    }
+    setState(() {
+      _topLayerX = offset;
+    });
+  }
+
+  void _selectNewTime() async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (newTime != null) {
+      final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(this.widget._selectedDay);
+      final String newTimeHour = newTime.hour.toString().padLeft(2, "0");
+      final String newTimeMinutes = newTime.minute.toString().padLeft(2, "0");
+      String mealDate = "$selectedDayFormatted $newTimeHour:$newTimeMinutes:00.000Z";
+
+      MealItemDao.update(this.widget._item.id, mealDate);
+      this.widget._reloadSelectedMeals();
+      _setTopLayerX(0);
     }
   }
 }

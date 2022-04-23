@@ -120,7 +120,7 @@ class _CalendarViewState extends State<CalendarView> {
                   itemBuilder: (context, index) {
                     MealItemDto item = items[index];
 
-                    return MainMealStack(_reloadSelectedMeals, item);
+                    return MainMealStack(_reloadSelectedMeals, item, _selectedDay);
                   },
                   shrinkWrap: true,
                 );
