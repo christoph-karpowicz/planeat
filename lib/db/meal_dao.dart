@@ -8,17 +8,17 @@ class MealDao {
         .query('meal');
     return List.generate(
         maps.length,
-            (i) => Meal(id: maps[i]['id'], name: maps[i]['name']));
+            (i) => Meal(id: maps[i]['id'], name: maps[i]['name'], description: maps[i]['description']));
   }
 
   static Future<Meal?> getById(int id) async {
     final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb()
-        .rawQuery('SELECT id, name FROM meal WHERE id = ?', <Object>[id]);
+        .rawQuery('SELECT id, name, description FROM meal WHERE id = ?', <Object>[id]);
     final mealsCount = maps.length;
     if (mealsCount == 0) {
       return null;
     }
-    return Meal(id: maps[0]['id'], name: maps[0]['name']);
+    return Meal(id: maps[0]['id'], name: maps[0]['name'], description: maps[0]['description']);
   }
 
 }

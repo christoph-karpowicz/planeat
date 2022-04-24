@@ -73,11 +73,8 @@ class _IngredientListItem extends State<IngredientListItem> {
               onEnd: () {
                 this.widget._removeIngredient(this.widget._item.id);
                 _setAnimation(false);
-                // setState(() {
-                //   _topLayerX = 0;
-                // });
               },
-              duration: const Duration(milliseconds: 150),
+              duration: const Duration(milliseconds: 180),
               transform: Matrix4.translationValues(_topLayerX, 0, 0),
               height: HEIGHT,
               margin: const EdgeInsets.only(

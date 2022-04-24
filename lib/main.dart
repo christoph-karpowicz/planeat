@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:planeat/components/main_meal_list_item.dart';
-import 'package:planeat/components/main_meal_stack.dart';
 import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/db_handler.dart';

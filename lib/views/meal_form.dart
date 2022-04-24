@@ -29,6 +29,8 @@ class _MealFormViewState extends State<MealFormView> {
   bool _editMode = false;
   Meal? _meal;
   String _mealName = "";
+  String _mealDescription = "";
+  bool _showDescription = false;
   List<Ingredient> _ingredients = <Ingredient>[];
 
   @override
@@ -51,6 +53,7 @@ class _MealFormViewState extends State<MealFormView> {
       setState(() {
         _meal = meal;
         _mealName = meal.name;
+        _mealDescription = meal.description;
       });
     }
   }
@@ -64,12 +67,6 @@ class _MealFormViewState extends State<MealFormView> {
 
   @override
   Widget build(BuildContext context) {
-    // if (_meal == null) {
-    //   return Scaffold(
-    //       body: Center(child: CircularProgressIndicator())
-    //   );
-    // }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_mealName),
@@ -77,6 +74,8 @@ class _MealFormViewState extends State<MealFormView> {
       ),
       body: Column(
         children: [
+
+          // Meal name section
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -98,6 +97,56 @@ class _MealFormViewState extends State<MealFormView> {
               ],
             )
           ),
+
+          // Meal description section
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text("Description: "),
+                ),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: Icon(
+                        _showDescription ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+                        color: _showDescription ? Colors.red : Colors.green),
+                      onPressed: () {
+                        setState(() {
+                          _showDescription = !_showDescription;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_showDescription) Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      keyboardType: TextInputType.multiline,
+                      minLines: 6,
+                      maxLines: null,
+                      controller: TextEditingController(text: _mealDescription),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        enabled: _isEditable(),
+                      ),
+                    ),
+                    flex: 2,
+                  ),
+                ],
+              )
+          ),
+
+          // Ingredients section
           Padding(
             padding: const EdgeInsets.all(8.0),
               child: Row(

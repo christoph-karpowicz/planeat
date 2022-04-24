@@ -19,7 +19,7 @@ class DatabaseHandler {
         bool tablesCreated = false;
         try {
           await db.execute(
-            "CREATE TABLE meal(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)",
+            "CREATE TABLE meal(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '')",
           );
           await db.execute(
             "CREATE TABLE ingredient(id INTEGER PRIMARY KEY AUTOINCREMENT, meal_id INTEGER, name TEXT NOT NULL, quantity TEXT NOT NULL, FOREIGN KEY (meal_id) REFERENCES meal (id))",
@@ -37,7 +37,7 @@ class DatabaseHandler {
         }
 
         await db.execute(
-          "INSERT INTO meal(name) VALUES ('owsianka')",
+          "INSERT INTO meal(name, description) VALUES ('owsianka', 'testowy opis')",
         );
         await db.execute(
           "INSERT INTO meal(name) VALUES ('pyszny ryż z ciecierzycą')",
