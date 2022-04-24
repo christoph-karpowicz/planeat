@@ -21,4 +21,11 @@ class MealDao {
     return Meal(id: maps[0]['id'], name: maps[0]['name'], description: maps[0]['description']);
   }
 
+  static void update(int id, String name, String description) async {
+    await DatabaseHandler.getDb().execute(
+        "UPDATE meal SET name = ?, description = ? WHERE id = ?",
+        <Object>[name, description, id]
+    );
+  }
+
 }

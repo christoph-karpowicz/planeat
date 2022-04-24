@@ -29,7 +29,8 @@ class _MealFormViewState extends State<MealFormView> {
   bool _editMode = false;
   Meal? _meal;
   String _mealName = "";
-  String _mealDescription = "";
+  TextEditingController _mealNameController = TextEditingController();
+  TextEditingController _mealDescriptionController = TextEditingController();
   bool _showDescription = false;
   List<Ingredient> _ingredients = <Ingredient>[];
 
@@ -38,8 +39,7 @@ class _MealFormViewState extends State<MealFormView> {
     super.initState();
     int? mealId = this.widget.arg?.mealId;
     if (mealId != null) {
-      _loadMeal(mealId);
-      _loadIngredients(mealId);
+      _reloadForm();
     } else {
       setState(() {
         _createMode = true;
@@ -50,10 +50,11 @@ class _MealFormViewState extends State<MealFormView> {
   void _loadMeal(int mealId) async {
     Meal? meal = await MealDao.getById(mealId);
     if (meal != null) {
+      _mealNameController.value = TextEditingValue(text: meal.name);
+      _mealDescriptionController.value = TextEditingValue(text: meal.description);
       setState(() {
         _meal = meal;
         _mealName = meal.name;
-        _mealDescription = meal.description;
       });
     }
   }
@@ -86,7 +87,7 @@ class _MealFormViewState extends State<MealFormView> {
                 ),
                 Expanded(
                   child: TextFormField(
-                    controller: TextEditingController(text: _mealName),
+                    controller: _mealNameController,
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(),
                       enabled: _isEditable(),
@@ -134,13 +135,12 @@ class _MealFormViewState extends State<MealFormView> {
                       keyboardType: TextInputType.multiline,
                       minLines: 6,
                       maxLines: null,
-                      controller: TextEditingController(text: _mealDescription),
+                      controller: _mealDescriptionController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         enabled: _isEditable(),
                       ),
                     ),
-                    flex: 2,
                   ),
                 ],
               )
@@ -162,53 +162,54 @@ class _MealFormViewState extends State<MealFormView> {
                 Flexible(
                   fit: FlexFit.loose,
                   child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView.builder(
-                          itemCount: _ingredients.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == _ingredients.length) {
-                              if (_isEditable()) {
-                                return Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 50.0,
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                                      ),
-                                      child: IconButton(
-                                        onPressed: () {
-                                          _ingredients.add(Ingredient(
-                                            id: 0,
-                                            name: "",
-                                            quantity: "")
-                                          );
-                                          setState(() {
-                                            _ingredients = _ingredients;
-                                          });
-                                        },
-                                        icon: Icon(
-                                          Icons.plus_one,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView.builder(
+                      itemCount: _ingredients.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == _ingredients.length) {
+                          if (_isEditable()) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 50.0,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      _ingredients.add(Ingredient(
+                                        id: 0,
+                                        name: "",
+                                        quantity: "")
+                                      );
+                                      setState(() {
+                                        _ingredients = _ingredients;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.plus_one,
+                                      color: Colors.white,
                                     ),
-                                  ],
-                                );
-                              } else {
-                                return SizedBox();
-                              }
-                            }
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else {
+                            return SizedBox();
+                          }
+                        }
 
-                            return IngredientListItem(
-                                _removeIngredient,
-                                _isEditable(),
-                                _ingredients[index],
-                                key: Key(_ingredients[index].id.toString()));
-                          },
-                        )
-                      ),
+                        return IngredientListItem(
+                            _removeIngredient,
+                            _isEditable(),
+                            _ingredients[index],
+                            key: Key(_ingredients[index].id.toString())
+                        );
+                      },
+                    )
+                  ),
                 ),
               ],
             ),
@@ -241,7 +242,29 @@ class _MealFormViewState extends State<MealFormView> {
             margin: _buttonMargin,
             child: FloatingActionButton(
               onPressed: () {
-                // Add your onPressed code here!
+                if (this._meal != null) {
+                  print(_mealNameController.value.text);
+                  print(_mealDescriptionController.value.text);
+                  MealDao.update(this._meal!.id, _mealNameController.value.text, _mealDescriptionController.value.text);
+                  _ingredients.forEach((ingredient) {
+                    print("===========");
+                    if (ingredient.id == 0) {
+                      print(this._meal!.id);
+                      print(ingredient.name);
+                      print(ingredient.quantity);
+                      // IngredientDao.save(this._meal!.id, ingredient.name, ingredient.quantity);
+                    } else {
+                      print(ingredient.id);
+                      print(ingredient.name);
+                      print(ingredient.quantity);
+                      IngredientDao.update(ingredient.id, ingredient.name, ingredient.quantity);
+                    }
+                  });
+                  setState(() {
+                    _editMode = false;
+                  });
+                }
+                _reloadForm();
               },
               backgroundColor: Colors.green,
               child: const Icon(Icons.save),
@@ -264,18 +287,20 @@ class _MealFormViewState extends State<MealFormView> {
       setState(() {
         _editMode = false;
       });
-      int? mealId = this._meal?.id;
-      if (mealId != null) {
-        _loadMeal(mealId);
-        _loadIngredients(mealId);
-      }
+      _reloadForm();
     }
   }
 
   void _resetMealName() {
-    setState(() {
-      _mealName = _meal!.name;
-    });
+    _mealNameController.value = TextEditingValue(text: _meal!.name);
+  }
+
+  void _reloadForm() {
+    int? mealId = this.widget.arg?.mealId;
+    if (mealId != null) {
+      _loadMeal(mealId);
+      _loadIngredients(mealId);
+    }
   }
 
   void _removeIngredient(int id) {
