@@ -3,19 +3,23 @@ import 'package:planeat/db/meal_item_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:intl/intl.dart';
 
-class MainMealStack extends StatefulWidget {
+class MainMealListItem extends StatefulWidget {
   final VoidCallback _reloadSelectedMeals;
   final MealItemDto _item;
   DateTime _selectedDay;
 
-  MainMealStack(this._reloadSelectedMeals, this._item, this._selectedDay);
+  MainMealListItem(
+      this._reloadSelectedMeals,
+      this._item,
+      this._selectedDay,
+      {Key? key}): super(key: key);
 
   @override
-  _MainMealStackState createState() => _MainMealStackState();
+  _MainMealListItemState createState() => _MainMealListItemState();
 
 }
 
-class _MainMealStackState extends State<MainMealStack> {
+class _MainMealListItemState extends State<MainMealListItem> {
   static final double HEIGHT = 60.0;
 
   double _topLayerX = 0.0;
@@ -95,7 +99,7 @@ class _MainMealStackState extends State<MainMealStack> {
             onEnd: () => {
               _setAnimation(false)
             },
-            duration: const Duration(milliseconds: 150),
+            duration: const Duration(milliseconds: 90),
             transform: Matrix4.translationValues(_topLayerX, 0, 0),
             height: HEIGHT,
             margin: const EdgeInsets.only(
@@ -165,11 +169,11 @@ class _MainMealStackState extends State<MainMealStack> {
 
       onPanUpdate: (details) {
         // Swiping in right direction.
-        if (details.delta.dx > 0) {
+        if (details.delta.dx > 5 && _topLayerX <= 0) {
           _setTopLayerX(1);
         }
         // Swiping in left direction.
-        if (details.delta.dx < 0) {
+        if (details.delta.dx < -5 && _topLayerX >= 0) {
           _setTopLayerX(-1);
         }
       },

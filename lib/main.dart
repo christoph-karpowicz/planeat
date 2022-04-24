@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/components/main_meal_list_item.dart';
 import 'package:planeat/components/main_meal_stack.dart';
 import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
@@ -123,7 +124,11 @@ class _CalendarViewState extends State<CalendarView> {
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       MealItemDto item = items[index];
-                      return MainMealStack(_reloadSelectedMeals, item, _selectedDay);
+                      return MainMealListItem(
+                          _reloadSelectedMeals,
+                          item,
+                          _selectedDay,
+                          key: Key(item.id.toString()));
                     },
                     shrinkWrap: true,
                   );

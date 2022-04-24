@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/components/ingredient_list_item.dart';
 import 'package:planeat/db/ingredient_dao.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/model/ingredient.dart';
@@ -56,7 +57,6 @@ class _MealFormViewState extends State<MealFormView> {
 
   void _loadIngredients(int mealId) async {
     List<Ingredient> ingredients = await IngredientDao.getByMealId(mealId);
-    print(ingredients);
     setState(() {
       _ingredients = ingredients;
     });
@@ -94,7 +94,7 @@ class _MealFormViewState extends State<MealFormView> {
                     ),
                   ),
                   flex: 2,
-                )
+                ),
               ],
             )
           ),
@@ -105,86 +105,90 @@ class _MealFormViewState extends State<MealFormView> {
                 children: [
                   Text("Ingredients: "),
                 ],
-              )
+              ),
           ),
           Expanded(
-            child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView.builder(
-                    itemCount: _ingredients.length,
-                    itemBuilder: (context, index) {
-                      final int ingredientId = _ingredients[index].id;
-                      final String ingredientName = _ingredients[index].name;
-                      final String ingredientQuantity = _ingredients[index].quantity;
+            child: Column(
+              children: [
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.builder(
+                          itemCount: _ingredients.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == _ingredients.length) {
+                              if (_isEditable()) {
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 50.0,
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {
+                                          _ingredients.add(Ingredient(
+                                            id: 0,
+                                            name: "",
+                                            quantity: "")
+                                          );
+                                          setState(() {
+                                            _ingredients = _ingredients;
+                                          });
+                                        },
+                                        icon: Icon(
+                                          Icons.plus_one,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return SizedBox();
+                              }
+                            }
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: TextEditingController(text: ingredientName),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: _isEditable() ? 'ingredient name' : null,
-                                  enabled: _isEditable(),
-                                ),
-                              ),
-                              flex: 3,
-                            ),
-                            Expanded(
-                              child: TextFormField(
-                                controller: TextEditingController(text: ingredientQuantity),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: _isEditable() ? 'quantity' : null,
-                                  enabled: _isEditable(),
-                                ),
-                              ),
-                              flex: 1,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  )
+                            return IngredientListItem(
+                                _removeIngredient,
+                                _isEditable(),
+                                _ingredients[index],
+                                key: Key(_ingredients[index].id.toString()));
+                          },
+                        )
+                      ),
                 ),
-          )
+              ],
+            ),
+          ),
         ],
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (!_editMode && !_createMode) Container(
+          if (!_isEditable()) Container(
             margin: _buttonMargin,
             child: FloatingActionButton(
-              onPressed: () {
+              onPressed: () =>
                 setState(() {
                   _editMode = true;
-                });
-              },
+                }),
               backgroundColor: Colors.green,
               child: const Icon(Icons.edit),
             ),
           ),
-          if (_editMode || _createMode) Container(
+          if (_isEditable()) Container(
             margin: _buttonMargin,
             child: FloatingActionButton(
-              onPressed: () {
-                if (_createMode) {
-                  Navigator.pop(context);
-                } else {
-                  _resetMealName();
-                  setState(() {
-                    _editMode = false;
-                  });
-                }
-              },
+              onPressed: _onCancel,
               backgroundColor: Colors.red,
               child: const Icon(Icons.cancel),
             ),
           ),
-          if (_editMode || _createMode) Container(
+          if (_isEditable()) Container(
             margin: _buttonMargin,
             child: FloatingActionButton(
               onPressed: () {
@@ -203,9 +207,32 @@ class _MealFormViewState extends State<MealFormView> {
     return _editMode || _createMode;
   }
 
+  void _onCancel() {
+    if (_createMode) {
+      Navigator.pop(context);
+    } else {
+      _resetMealName();
+      setState(() {
+        _editMode = false;
+      });
+      int? mealId = this._meal?.id;
+      if (mealId != null) {
+        _loadMeal(mealId);
+        _loadIngredients(mealId);
+      }
+    }
+  }
+
   void _resetMealName() {
     setState(() {
       _mealName = _meal!.name;
+    });
+  }
+
+  void _removeIngredient(int id) {
+    _ingredients.removeWhere((ingredient) => ingredient.id == id);
+    setState(() {
+      _ingredients = _ingredients;
     });
   }
 }
