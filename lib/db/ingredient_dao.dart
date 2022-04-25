@@ -19,17 +19,24 @@ class IngredientDao {
         );
   }
 
-  static void save(int mealId, String name, String quantity) async {
+  static Future<void> save(int mealId, String name, String quantity) async {
     await DatabaseHandler.getDb().execute(
         "INSERT INTO ingredient(meal_id, name, quantity) VALUES (?, ?, ?)",
         <Object>[mealId, name, quantity]
     );
   }
 
-  static void update(int id, String name, String quantity) async {
+  static Future<void> update(int id, String name, String quantity) async {
     await DatabaseHandler.getDb().execute(
         "UPDATE ingredient SET name = ?, quantity = ? WHERE id = ?",
         <Object>[name, quantity, id]
+    );
+  }
+
+  static Future<void> deleteById(int id) async {
+    await DatabaseHandler.getDb().execute(
+        "DELETE FROM ingredient WHERE id = ?",
+        <Object>[id]
     );
   }
 

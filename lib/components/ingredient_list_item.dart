@@ -3,21 +3,38 @@ import 'package:planeat/model/ingredient.dart';
 
 class IngredientListItem extends StatefulWidget {
   final void Function(int) _removeIngredient;
-  bool _isEditable;
+  final bool Function() _isEditable;
   final Ingredient _item;
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _quantityController = TextEditingController();
 
   IngredientListItem(
       this._removeIngredient,
       this._isEditable,
       this._item,
-      {Key? key}): super(key: key);
+      {Key? key}): super(key: key) {
+    _nameController.value = TextEditingValue(text: this._item.name);
+    _quantityController.value = TextEditingValue(text: this._item.quantity);
+  }
 
   @override
-  _IngredientListItem createState() => _IngredientListItem();
+  _IngredientListItemState createState() => _IngredientListItemState();
+
+  Ingredient getItem() {
+    return _item;
+  }
+
+  TextEditingController getNameController() {
+    return _nameController;
+  }
+
+  TextEditingController getQuantityController() {
+    return _quantityController;
+  }
 
 }
 
-class _IngredientListItem extends State<IngredientListItem> {
+class _IngredientListItemState extends State<IngredientListItem> {
   static final double HEIGHT = 60.0;
 
   double _topLayerX = 0.0;
@@ -25,9 +42,9 @@ class _IngredientListItem extends State<IngredientListItem> {
 
   @override
   Widget build(BuildContext context) {
-    final int? ingredientId = this.widget._item.id;
-    final String ingredientName = this.widget._item.name;
-    final String ingredientQuantity = this.widget._item.quantity;
+    final int? _ingredientId = this.widget._item.id;
+    final String _ingredientName = this.widget._item.name;
+    final String _ingredientQuantity = this.widget._item.quantity;
 
     return GestureDetector(
       child: Stack(
@@ -92,25 +109,22 @@ class _IngredientListItem extends State<IngredientListItem> {
                   children: [
                     Expanded(
                       child: TextFormField(
-                        controller: TextEditingController(text: ingredientName),
+                        controller: this.widget._nameController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: this.widget._isEditable ? 'ingredient name' : null,
-                          enabled: this.widget._isEditable,
+                          labelText: this.widget._isEditable() ? 'ingredient name' : null,
+                          enabled: this.widget._isEditable(),
                         ),
-                        // onChanged: (e) {
-                        //   print(e);
-                        // },
                       ),
                       flex: 3,
                     ),
                     Expanded(
                       child: TextFormField(
-                        controller: TextEditingController(text: ingredientQuantity),
+                        controller: this.widget._quantityController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: this.widget._isEditable ? 'quantity' : null,
-                          enabled: this.widget._isEditable,
+                          labelText: this.widget._isEditable() ? 'quantity' : null,
+                          enabled: this.widget._isEditable(),
                         ),
                       ),
                       flex: 1,
@@ -138,7 +152,7 @@ class _IngredientListItem extends State<IngredientListItem> {
   }
 
   void _setTopLayerX() {
-    if (_animation || !this.widget._isEditable) {
+    if (_animation || !this.widget._isEditable()) {
       return;
     }
     _setAnimation(true);
