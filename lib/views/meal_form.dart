@@ -83,163 +83,155 @@ class _MealFormViewState extends State<MealFormView> {
         title: Text(_mealName),
         backgroundColor: Colors.lightGreen,
       ),
-      body: Column(
-        children: [
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
 
-          // Meal name section
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text("Meal name: "),
-                  flex: 1,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: _mealNameController,
-                    decoration: InputDecoration(
-                      border: UnderlineInputBorder(),
-                      enabled: _isEditable(),
-                    ),
-                  ),
-                  flex: 2,
-                ),
-              ],
-            )
-          ),
-
-          // Meal description section
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text("Description: "),
-                ),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      icon: Icon(
-                        _showDescription ? Icons.arrow_circle_up : Icons.arrow_circle_down,
-                        color: _showDescription ? Colors.red : Colors.green),
-                      onPressed: () {
-                        setState(() {
-                          _showDescription = !_showDescription;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (_showDescription) Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+            // Meal name section
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   Expanded(
+                    child: Text("Meal name: "),
+                    flex: 1,
+                  ),
+                  Expanded(
                     child: TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      minLines: 6,
-                      maxLines: null,
-                      controller: _mealDescriptionController,
+                      controller: _mealNameController,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                         enabled: _isEditable(),
+                      ),
+                    ),
+                    flex: 2,
+                  ),
+                ],
+              )
+            ),
+
+            // Meal description section
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text("Description: "),
+                  ),
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: Icon(
+                          _showDescription ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+                          color: _showDescription ? Colors.red : Colors.green),
+                        onPressed: () {
+                          setState(() {
+                            _showDescription = !_showDescription;
+                          });
+                        },
                       ),
                     ),
                   ),
                 ],
-              )
-          ),
-
-          // Ingredients section
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text("Ingredients: "),
-                ],
               ),
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListView.builder(
-                      itemCount: _ingredientItems.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == _ingredientItems.length) {
-                          if (_isEditable()) {
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 50.0,
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                                  ),
-                                  child: IconButton(
-                                    onPressed: () {
-                                      _ingredientItems.add(IngredientListItem(
-                                          _removeIngredient,
-                                          _isEditable,
-                                          Ingredient(
-                                              id: 0,
-                                              name: "",
-                                              quantity: "")
-                                      ));
-                                      setState(() {
-                                        _ingredientItems = _ingredientItems;
-                                      });
-                                    },
-                                    icon: Icon(
-                                      Icons.plus_one,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          } else {
-                            return SizedBox();
-                          }
-                        }
-
-                        _ingredientItems[index] = IngredientListItem(
-                            _removeIngredient,
-                            _isEditable,
-                            _ingredientItems[index].getItem(),
-                            key: Key(_ingredientItems[index].getItem().id.toString())
-                        );
-                        return _ingredientItems[index];
-                      },
-                    )
-                  ),
-                ),
-              ],
             ),
-          ),
-        ],
+            if (_showDescription) Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        minLines: 6,
+                        maxLines: null,
+                        controller: _mealDescriptionController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          enabled: _isEditable(),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+            ),
+
+            // Ingredients section
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text("Ingredients: "),
+                  ],
+                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.builder(
+                itemCount: _ingredientItems.length + 1,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  if (index == _ingredientItems.length) {
+                    if (_isEditable()) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 50.0,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _ingredientItems.add(IngredientListItem(
+                                      _removeIngredient,
+                                      _isEditable,
+                                      Ingredient(
+                                          id: 0,
+                                          name: "",
+                                          quantity: "")
+                                  ));
+                                });
+                              },
+                              icon: Icon(
+                                Icons.plus_one,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  }
+
+                  _ingredientItems[index] = IngredientListItem(
+                      _removeIngredient,
+                      _isEditable,
+                      _ingredientItems[index].getItem(),
+                      key: Key(_ingredientItems[index].getItem().id.toString())
+                  );
+                  return _ingredientItems[index];
+                },
+              )
+            ),
+          ],
+        ),
       ),
+
+      // Buttons
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           if (!_isEditable()) Container(
             margin: _buttonMargin,
             child: FloatingActionButton(
-              onPressed: () =>
-                setState(() {
-                  _editMode = true;
-                }),
+              onPressed: _onEdit,
               backgroundColor: Colors.green,
               child: const Icon(Icons.edit),
             ),
@@ -269,15 +261,25 @@ class _MealFormViewState extends State<MealFormView> {
     return _editMode || _createMode;
   }
 
+  void _onEdit() {
+    setState(() {
+      _editMode = true;
+    });
+  }
+
+  void _exitEditMode() {
+    setState(() {
+      _editMode = false;
+      _ingredientsToRemove = <int>[];
+    });
+  }
+
   void _onCancel() {
     if (_createMode) {
       Navigator.pop(context);
     } else {
       _resetMealName();
-      setState(() {
-        _editMode = false;
-        _ingredientsToRemove = <int>[];
-      });
+      _exitEditMode();
       _reloadForm();
     }
   }
@@ -297,10 +299,7 @@ class _MealFormViewState extends State<MealFormView> {
       });
       _ingredientsToRemove.forEach((id) async => await IngredientDao.deleteById(id));
 
-      setState(() {
-        _editMode = false;
-        _ingredientsToRemove = <int>[];
-      });
+      _exitEditMode();
     }
     _reloadForm();
   }
