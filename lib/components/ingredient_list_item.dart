@@ -3,7 +3,7 @@ import 'package:planeat/model/ingredient.dart';
 
 class IngredientListItem extends StatefulWidget {
   final void Function(int) _removeIngredient;
-  final bool Function() _isEditable;
+  bool _isEditable;
   final Ingredient _item;
   TextEditingController _nameController = TextEditingController();
   TextEditingController _quantityController = TextEditingController();
@@ -28,8 +28,16 @@ class IngredientListItem extends StatefulWidget {
     return _nameController;
   }
 
+  void setName(String name) {
+    _nameController.value = TextEditingValue(text: name);
+  }
+
   TextEditingController getQuantityController() {
     return _quantityController;
+  }
+
+  void setQuantity(String quantity) {
+    _quantityController.value = TextEditingValue(text: quantity);
   }
 
 }
@@ -42,10 +50,6 @@ class _IngredientListItemState extends State<IngredientListItem> {
 
   @override
   Widget build(BuildContext context) {
-    final int? _ingredientId = this.widget._item.id;
-    final String _ingredientName = this.widget._item.name;
-    final String _ingredientQuantity = this.widget._item.quantity;
-
     return GestureDetector(
       child: Stack(
         children: [
@@ -112,8 +116,8 @@ class _IngredientListItemState extends State<IngredientListItem> {
                         controller: this.widget._nameController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: this.widget._isEditable() ? 'ingredient name' : null,
-                          enabled: this.widget._isEditable(),
+                          labelText: this.widget._isEditable ? 'ingredient name' : null,
+                          enabled: this.widget._isEditable,
                         ),
                       ),
                       flex: 3,
@@ -123,8 +127,8 @@ class _IngredientListItemState extends State<IngredientListItem> {
                         controller: this.widget._quantityController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: this.widget._isEditable() ? 'quantity' : null,
-                          enabled: this.widget._isEditable(),
+                          labelText: this.widget._isEditable ? 'quantity' : null,
+                          enabled: this.widget._isEditable,
                         ),
                       ),
                       flex: 1,
@@ -152,7 +156,7 @@ class _IngredientListItemState extends State<IngredientListItem> {
   }
 
   void _setTopLayerX() {
-    if (_animation || !this.widget._isEditable()) {
+    if (_animation || !this.widget._isEditable) {
       return;
     }
     _setAnimation(true);

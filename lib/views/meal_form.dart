@@ -66,7 +66,7 @@ class _MealFormViewState extends State<MealFormView> {
         ingredients.length,
         (index) => IngredientListItem(
           _removeIngredient,
-          _isEditable,
+          _isEditable(),
           ingredients[index],
           key: Key(ingredients[index].id.toString())
         )
@@ -82,6 +82,10 @@ class _MealFormViewState extends State<MealFormView> {
       appBar: AppBar(
         title: Text(_mealName),
         backgroundColor: Colors.lightGreen,
+        leading: new IconButton(
+            icon: new Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pushNamed(context, '/meals'),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -137,24 +141,34 @@ class _MealFormViewState extends State<MealFormView> {
                 ],
               ),
             ),
-            if (_showDescription) Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        keyboardType: TextInputType.multiline,
-                        minLines: 6,
-                        maxLines: null,
-                        controller: _mealDescriptionController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          enabled: _isEditable(),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+            AnimatedSize(
+              duration: Duration(seconds: 1),
+              curve: Curves.fastOutSlowIn,
+              child: Visibility(
+                visible: _showDescription,
+                child: Container(
+                  height: _showDescription ? null : 0,
+                  child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              keyboardType: TextInputType.multiline,
+                              minLines: 6,
+                              maxLines: null,
+                              controller: _mealDescriptionController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                enabled: _isEditable(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                  ),
+                ),
+              ),
             ),
 
             // Ingredients section
@@ -189,7 +203,7 @@ class _MealFormViewState extends State<MealFormView> {
                                 setState(() {
                                   _ingredientItems.add(IngredientListItem(
                                       _removeIngredient,
-                                      _isEditable,
+                                      _isEditable(),
                                       Ingredient(
                                           id: 0,
                                           name: "",
@@ -210,12 +224,15 @@ class _MealFormViewState extends State<MealFormView> {
                     }
                   }
 
-                  _ingredientItems[index] = IngredientListItem(
+                  IngredientListItem updatedItem = IngredientListItem(
                       _removeIngredient,
-                      _isEditable,
+                      _isEditable(),
                       _ingredientItems[index].getItem(),
                       key: Key(_ingredientItems[index].getItem().id.toString())
                   );
+                  updatedItem.setName(_ingredientItems[index].getNameController().value.text);
+                  updatedItem.setQuantity(_ingredientItems[index].getQuantityController().value.text);
+                  _ingredientItems[index] = updatedItem;
                   return _ingredientItems[index];
                 },
               )
