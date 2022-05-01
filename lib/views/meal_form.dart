@@ -200,6 +200,7 @@ class _MealFormViewState extends State<MealFormView> {
                         }
                       }
 
+                      _ingredientItems[index] = _ingredientItems[index].clone();
                       return _ingredientItems[index];
                     },
                   )
@@ -310,15 +311,19 @@ class _MealFormViewState extends State<MealFormView> {
           Ingredient(
               id: 0,
               name: "",
-              quantity: "")
+              quantity: ""),
+          key: Key(DateTime.now().microsecondsSinceEpoch.toString()),
       ));
     });
   }
 
-  void _removeIngredient(int id) {
+  void _removeIngredient(Key key) {
+    print(key.toString());
+    IngredientListItem idToRemove =
+      _ingredientItems.firstWhere((item) => item.key == key);
     setState(() {
-      _ingredientItems.removeWhere((item) => item.getItem().id == id);
-      _ingredientsToRemove.add(id);
+      _ingredientItems.removeWhere((item) => item.key == key);
+      _ingredientsToRemove.add(idToRemove.getItem().id);
     });
   }
 }

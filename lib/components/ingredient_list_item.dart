@@ -3,7 +3,7 @@ import 'package:planeat/model/ingredient.dart';
 
 class IngredientListItem extends StatefulWidget {
   final IngredientListItemState state;
-  final void Function(int) _removeIngredient;
+  final void Function(Key) _removeIngredient;
   final ValueNotifier<bool> _isEditable;
   final Ingredient _item;
   TextEditingController _nameController = TextEditingController();
@@ -31,6 +31,23 @@ class IngredientListItem extends StatefulWidget {
 
   TextEditingController getQuantityController() {
     return _quantityController;
+  }
+
+  IngredientListItem clone() {
+    IngredientListItem newItem = IngredientListItem(
+        IngredientListItemState(),
+        _removeIngredient,
+        _isEditable,
+        _item,
+        key: this.key,
+    );
+    newItem._setTextEditingControllers(this.getNameController(), this.getQuantityController());
+    return newItem;
+  }
+
+  void _setTextEditingControllers(TextEditingController nc, TextEditingController qc) {
+    _nameController.value = TextEditingValue(text: nc.value.text);
+    _quantityController.value = TextEditingValue(text: qc.value.text);
   }
 
 }
@@ -88,7 +105,7 @@ class IngredientListItemState extends State<IngredientListItem> {
 
               AnimatedContainer(
                   onEnd: () {
-                    this.widget._removeIngredient(this.widget._item.id);
+                    this.widget._removeIngredient(this.widget.key!);
                     _setAnimation(false);
                   },
                   duration: const Duration(milliseconds: 180),
