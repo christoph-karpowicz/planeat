@@ -35,7 +35,7 @@ class IngredientListItem extends StatefulWidget {
 
   IngredientListItem clone() {
     IngredientListItem newItem = IngredientListItem(
-        IngredientListItemState(),
+        state,
         _removeIngredient,
         _isEditable,
         _item,
@@ -57,6 +57,7 @@ class IngredientListItemState extends State<IngredientListItem> {
 
   double _topLayerX = 0.0;
   bool _animation = false;
+  bool _nameError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -128,8 +129,22 @@ class IngredientListItemState extends State<IngredientListItem> {
                           child: TextFormField(
                             controller: this.widget._nameController,
                             decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: editMode ? 'ingredient name' : null,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _nameError ? Colors.red : Colors.grey,
+                                )
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: _nameError ? Colors.red : Colors.grey,
+                                    width: 2.0,
+                                  )
+                              ),
+                              labelText: editMode ?
+                                (_nameError ? 'name cannot be empty' : 'name') : null,
+                              labelStyle: TextStyle(
+                                color: _nameError ? Colors.red : Colors.green,
+                              ),
                               enabled: editMode,
                             ),
                           ),
@@ -139,8 +154,21 @@ class IngredientListItemState extends State<IngredientListItem> {
                           child: TextFormField(
                             controller: this.widget._quantityController,
                             decoration: InputDecoration(
-                              border: OutlineInputBorder(),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                  )
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                    width: 2.0,
+                                  )
+                              ),
                               labelText: editMode ? 'quantity' : null,
+                              labelStyle: TextStyle(
+                                  color: Colors.green
+                              ),
                               enabled: editMode,
                             ),
                           ),
@@ -177,6 +205,12 @@ class IngredientListItemState extends State<IngredientListItem> {
     _setAnimation(true);
     setState(() {
       _topLayerX = -50.0;
+    });
+  }
+
+  void setNameError(bool isError) {
+    setState(() {
+      _nameError = isError;
     });
   }
 

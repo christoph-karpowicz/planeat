@@ -272,10 +272,15 @@ class _MealFormViewState extends State<MealFormView> {
 
   void _onSave() async {
     if (this._meal != null) {
+      if (!_validateIngredientInputs()) {
+        return;
+      }
+
       await MealDao.update(this._meal!.id, _mealNameController.value.text, _mealDescriptionController.value.text);
       _ingredientItems.forEach((item) async {
         Ingredient ingredient = item.getItem();
         String name = item.getNameController().value.text;
+
         String quantity = item.getQuantityController().value.text;
         if (ingredient.id == 0) {
           await IngredientDao.save(this._meal!.id, name, quantity);
@@ -288,6 +293,21 @@ class _MealFormViewState extends State<MealFormView> {
       _exitEditMode();
     }
     _reloadForm();
+  }
+
+  bool _validateIngredientInputs() {
+    Iterable<IngredientListItem> emptyItems = _ingredientItems
+        .where((item) => item.getNameController().value.text.isEmpty);
+    if (emptyItems.length == 0) {
+      return true;
+    }
+
+    emptyItems
+        .forEach((item) {
+          item.state.setNameError(true);
+    });
+
+    return false;
   }
 
   void _resetMealName() {
@@ -318,7 +338,6 @@ class _MealFormViewState extends State<MealFormView> {
   }
 
   void _removeIngredient(Key key) {
-    print(key.toString());
     IngredientListItem idToRemove =
       _ingredientItems.firstWhere((item) => item.key == key);
     setState(() {
