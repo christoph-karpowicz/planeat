@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:planeat/components/add_ingredient_button.dart';
 import 'package:planeat/components/ingredient_list_item.dart';
+import 'package:planeat/components/ingredient_list_item_controller.dart';
 import 'package:planeat/db/ingredient_dao.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/model/ingredient.dart';
@@ -33,7 +34,7 @@ class _MealFormViewState extends State<MealFormView> {
   TextEditingController _mealNameController = TextEditingController();
   TextEditingController _mealDescriptionController = TextEditingController();
   bool _showDescription = false;
-  List<IngredientListItem> _ingredientItems = <IngredientListItem>[];
+  List<IngredientListItemController> _ingredientItems = <IngredientListItemController>[];
   List<int> _ingredientsToRemove = <int>[];
 
   @override
@@ -63,14 +64,13 @@ class _MealFormViewState extends State<MealFormView> {
 
   void _loadIngredients(int mealId) async {
     List<Ingredient> ingredients = await IngredientDao.getByMealId(mealId);
-    List<IngredientListItem> ingredientListItems = List.generate(
+    List<IngredientListItemController> ingredientListItems = List.generate(
         ingredients.length,
-        (index) => IngredientListItem(
-          IngredientListItemState(),
-          _removeIngredient,
-          _isEditable,
-          ingredients[index],
-          key: Key(ingredients[index].id.toString())
+            (index) => IngredientListItemController(
+              ingredients[index],
+              false,
+              false,
+              false,
         )
     );
     setState(() {
@@ -200,8 +200,15 @@ class _MealFormViewState extends State<MealFormView> {
                         }
                       }
 
-                      _ingredientItems[index] = _ingredientItems[index].clone();
-                      return _ingredientItems[index];
+                      return IngredientListItem(
+                          _removeIngredient,
+                          _isEditable.value,
+                          _ingredientItems[index].isNameError,
+                          _ingredientItems[index].item,
+                          _ingredientItems[index].nameController,
+                          _ingredientItems[index].quantityController,
+                          key: Key(_ingredientItems[index].item.id.toString())
+                      );
                     },
                   )
                 ),
@@ -278,11 +285,10 @@ class _MealFormViewState extends State<MealFormView> {
 
       await MealDao.update(this._meal!.id, _mealNameController.value.text, _mealDescriptionController.value.text);
       _ingredientItems.forEach((item) async {
-        Ingredient ingredient = item.getItem();
-        String name = item.getNameController().value.text;
-
-        String quantity = item.getQuantityController().value.text;
-        if (ingredient.id == 0) {
+        Ingredient ingredient = item.item;
+        String name = item.nameController.value.text;
+        String quantity = item.quantityController.value.text;
+        if (item.isNew) {
           await IngredientDao.save(this._meal!.id, name, quantity);
         } else {
           await IngredientDao.update(ingredient.id, name, quantity);
@@ -296,18 +302,28 @@ class _MealFormViewState extends State<MealFormView> {
   }
 
   bool _validateIngredientInputs() {
-    Iterable<IngredientListItem> emptyItems = _ingredientItems
-        .where((item) => item.getNameController().value.text.isEmpty);
+    Iterable<IngredientListItemController> emptyItems = _ingredientItems
+        .where((item) => item.nameController.value.text.isEmpty);
     if (emptyItems.length == 0) {
       return true;
     }
 
+    _resetIngredientNameErrors();
     emptyItems
         .forEach((item) {
-          item.state.setNameError(true);
+          item.isNameError = true;
+    });
+    setState(() {
+      _ingredientItems = _ingredientItems;
     });
 
     return false;
+  }
+
+  void _resetIngredientNameErrors() {
+    _ingredientItems.forEach((item) {
+      item.isNameError = false;
+    });
   }
 
   void _resetMealName() {
@@ -324,25 +340,24 @@ class _MealFormViewState extends State<MealFormView> {
 
   void _addEmptyIngredient() {
     setState(() {
-      _ingredientItems.add(IngredientListItem(
-          IngredientListItemState(),
-          _removeIngredient,
-          _isEditable,
-          Ingredient(
-              id: 0,
-              name: "",
-              quantity: ""),
-          key: Key(DateTime.now().microsecondsSinceEpoch.toString()),
+      _ingredientItems.add(IngredientListItemController(
+        Ingredient(
+            id: DateTime.now().microsecondsSinceEpoch,
+            name: "",
+            quantity: ""),
+        true,
+        false,
+        true,
       ));
     });
   }
 
-  void _removeIngredient(Key key) {
-    IngredientListItem idToRemove =
-      _ingredientItems.firstWhere((item) => item.key == key);
+  void _removeIngredient(int id) {
+    IngredientListItemController idToRemove =
+      _ingredientItems.firstWhere((item) => item.item.id == id);
     setState(() {
-      _ingredientItems.removeWhere((item) => item.key == key);
-      _ingredientsToRemove.add(idToRemove.getItem().id);
+      _ingredientItems.removeWhere((item) => item.item.id == id);
+      _ingredientsToRemove.add(idToRemove.item.id);
     });
   }
 }

@@ -2,193 +2,157 @@ import 'package:flutter/material.dart';
 import 'package:planeat/model/ingredient.dart';
 
 class IngredientListItem extends StatefulWidget {
-  final IngredientListItemState state;
-  final void Function(Key) _removeIngredient;
-  final ValueNotifier<bool> _isEditable;
+  final void Function(int) _removeIngredient;
+  final bool _isEditable;
+  final bool _isNameError;
   final Ingredient _item;
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _nameController;
+  final TextEditingController _quantityController;
 
-  IngredientListItem(this.state,
-                     this._removeIngredient,
+  IngredientListItem(this._removeIngredient,
                      this._isEditable,
+                     this._isNameError,
                      this._item,
-                     {Key? key}): super(key: key) {
-    _nameController.value = TextEditingValue(text: this._item.name);
-    _quantityController.value = TextEditingValue(text: this._item.quantity);
-  }
+                     this._nameController,
+                     this._quantityController,
+                     {Key? key}): super(key: key);
 
   @override
-  IngredientListItemState createState() => this.state;
-
-  Ingredient getItem() {
-    return _item;
-  }
-
-  TextEditingController getNameController() {
-    return _nameController;
-  }
-
-  TextEditingController getQuantityController() {
-    return _quantityController;
-  }
-
-  IngredientListItem clone() {
-    IngredientListItem newItem = IngredientListItem(
-        state,
-        _removeIngredient,
-        _isEditable,
-        _item,
-        key: this.key,
-    );
-    newItem._setTextEditingControllers(this.getNameController(), this.getQuantityController());
-    return newItem;
-  }
-
-  void _setTextEditingControllers(TextEditingController nc, TextEditingController qc) {
-    _nameController.value = TextEditingValue(text: nc.value.text);
-    _quantityController.value = TextEditingValue(text: qc.value.text);
-  }
+  _IngredientListItemState createState() => _IngredientListItemState();
 
 }
 
-class IngredientListItemState extends State<IngredientListItem> {
+class _IngredientListItemState extends State<IngredientListItem> {
   static final double HEIGHT = 60.0;
 
   double _topLayerX = 0.0;
   bool _animation = false;
-  bool _nameError = false;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: this.widget._isEditable,
-      builder: (BuildContext context, bool editMode, Widget? child) {
-        return GestureDetector(
-          child: Stack(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(
-                  left: 12.0,
-                  right: 12.0,
-                  bottom: 6.0,
+    return GestureDetector(
+      child: Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(
+              left: 12.0,
+              right: 12.0,
+              bottom: 6.0,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Row(
+              children: [
+                // Delete button
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      color: Colors.red,
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.delete_forever,
+                        color: Colors.white,
+                        size: 30.0,
+                      ),
+                      onPressed: () => {
+                        // MealItemDao.deleteById(widget._item.id),
+                        // widget._reloadSelectedMeals()
+                      },
+                    ),
+                    alignment: Alignment.centerRight,
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
+              ],
+            ),
+            height: HEIGHT,
+          ),
+
+          AnimatedContainer(
+              onEnd: () {
+                widget._removeIngredient(widget._item.id);
+                _setAnimation(false);
+              },
+              duration: const Duration(milliseconds: 180),
+              transform: Matrix4.translationValues(_topLayerX, 0, 0),
+              height: HEIGHT,
+              margin: const EdgeInsets.only(
+                left: 12.0,
+                right: 12.0,
+                bottom: 6.0,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+                color: Colors.white,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
                 child: Row(
                   children: [
-                    // Delete button
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                          color: Colors.red,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.delete_forever,
-                            color: Colors.white,
-                            size: 30.0,
+                      child: TextFormField(
+                        controller: widget._nameController,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: widget._isNameError ? Colors.red : Colors.grey,
+                            )
                           ),
-                          onPressed: () => {
-                            // MealItemDao.deleteById(this.widget._item.id),
-                            // this.widget._reloadSelectedMeals()
-                          },
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: widget._isNameError ? Colors.red : Colors.grey,
+                                width: 2.0,
+                              )
+                          ),
+                          labelText: widget._isEditable ?
+                            (widget._isNameError ? 'name cannot be empty' : 'name') : null,
+                          labelStyle: TextStyle(
+                            color: widget._isNameError ? Colors.red : Colors.green,
+                          ),
+                          enabled: widget._isEditable,
                         ),
-                        alignment: Alignment.centerRight,
                       ),
+                      flex: 3,
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        controller: widget._quantityController,
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                              )
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 2.0,
+                              )
+                          ),
+                          labelText: widget._isEditable ? 'quantity' : null,
+                          labelStyle: TextStyle(
+                              color: Colors.green
+                          ),
+                          enabled: widget._isEditable,
+                        ),
+                      ),
+                      flex: 1,
                     ),
                   ],
                 ),
-                height: HEIGHT,
-              ),
-
-              AnimatedContainer(
-                  onEnd: () {
-                    this.widget._removeIngredient(this.widget.key!);
-                    _setAnimation(false);
-                  },
-                  duration: const Duration(milliseconds: 180),
-                  transform: Matrix4.translationValues(_topLayerX, 0, 0),
-                  height: HEIGHT,
-                  margin: const EdgeInsets.only(
-                    left: 12.0,
-                    right: 12.0,
-                    bottom: 6.0,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    color: Colors.white,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: this.widget._nameController,
-                            decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _nameError ? Colors.red : Colors.grey,
-                                )
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: _nameError ? Colors.red : Colors.grey,
-                                    width: 2.0,
-                                  )
-                              ),
-                              labelText: editMode ?
-                                (_nameError ? 'name cannot be empty' : 'name') : null,
-                              labelStyle: TextStyle(
-                                color: _nameError ? Colors.red : Colors.green,
-                              ),
-                              enabled: editMode,
-                            ),
-                          ),
-                          flex: 3,
-                        ),
-                        Expanded(
-                          child: TextFormField(
-                            controller: this.widget._quantityController,
-                            decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.grey,
-                                  )
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.grey,
-                                    width: 2.0,
-                                  )
-                              ),
-                              labelText: editMode ? 'quantity' : null,
-                              labelStyle: TextStyle(
-                                  color: Colors.green
-                              ),
-                              enabled: editMode,
-                            ),
-                          ),
-                          flex: 1,
-                        ),
-                      ],
-                    ),
-                  )
-              ),
-            ],
+              )
           ),
+        ],
+      ),
 
-          onPanUpdate: (details) {
-            // Swiping in left direction.
-            if (details.delta.dx < -5 && _topLayerX >= 0) {
-              _setTopLayerX();
-            }
-          },
-        );
-      }
+      onPanUpdate: (details) {
+        // Swiping in left direction.
+        if (details.delta.dx < -5 && _topLayerX >= 0) {
+          _setTopLayerX();
+        }
+      },
     );
   }
 
@@ -199,18 +163,12 @@ class IngredientListItemState extends State<IngredientListItem> {
   }
 
   void _setTopLayerX() {
-    if (_animation || !this.widget._isEditable.value) {
+    if (_animation || !widget._isEditable) {
       return;
     }
     _setAnimation(true);
     setState(() {
       _topLayerX = -50.0;
-    });
-  }
-
-  void setNameError(bool isError) {
-    setState(() {
-      _nameError = isError;
     });
   }
 
