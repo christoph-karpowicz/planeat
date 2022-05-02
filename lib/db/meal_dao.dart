@@ -21,6 +21,13 @@ class MealDao {
     return Meal(id: maps[0]['id'], name: maps[0]['name'], description: maps[0]['description']);
   }
 
+  static Future<int> save(String name, String description) async {
+    return await DatabaseHandler.getDb().insert("meal", {
+      "name": name,
+      "description": description,
+    });
+  }
+
   static Future<void> update(int id, String name, String description) async {
     await DatabaseHandler.getDb().execute(
         "UPDATE meal SET name = ?, description = ? WHERE id = ?",

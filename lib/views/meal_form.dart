@@ -31,6 +31,7 @@ class _MealFormViewState extends State<MealFormView> {
   ValueNotifier<bool> _isEditable = ValueNotifier(false);
   Meal? _meal;
   String _mealName = "";
+  bool _isMealNameError = false;
   TextEditingController _mealNameController = TextEditingController();
   TextEditingController _mealDescriptionController = TextEditingController();
   bool _showDescription = false;
@@ -42,11 +43,9 @@ class _MealFormViewState extends State<MealFormView> {
     super.initState();
     int? mealId = this.widget.arg?.mealId;
     if (mealId != null) {
-      _reloadForm();
+      _reloadForm(mealId);
     } else {
-      setState(() {
-        _createMode = true;
-      });
+      setState(() => _createMode = true);
     }
   }
 
@@ -73,9 +72,7 @@ class _MealFormViewState extends State<MealFormView> {
               false,
         )
     );
-    setState(() {
-      _ingredientItems = ingredientListItems;
-    });
+    setState(() => _ingredientItems = ingredientListItems);
   }
 
   @override
@@ -109,8 +106,16 @@ class _MealFormViewState extends State<MealFormView> {
                         child: TextFormField(
                           controller: _mealNameController,
                           decoration: InputDecoration(
-                            border: UnderlineInputBorder(),
-                            enabled: editMode,
+                            border: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _isMealNameError ? Colors.red : Colors.grey,
+                                )
+                            ),
+                            enabled: editMode || _createMode,
+                            labelText: _isMealNameError ? "meal name cannot be empty" : "",
+                            labelStyle: TextStyle(
+                              color: _isMealNameError ? Colors.red : null
+                            )
                           ),
                         ),
                         flex: 2,
@@ -136,9 +141,7 @@ class _MealFormViewState extends State<MealFormView> {
                               _showDescription ? Icons.arrow_circle_up : Icons.arrow_circle_down,
                               color: _showDescription ? Colors.red : Colors.green),
                             onPressed: () {
-                              setState(() {
-                                _showDescription = !_showDescription;
-                              });
+                              setState(() => _showDescription = !_showDescription);
                             },
                           ),
                         ),
@@ -165,7 +168,7 @@ class _MealFormViewState extends State<MealFormView> {
                                   controller: _mealDescriptionController,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
-                                    enabled: editMode,
+                                    enabled: editMode || _createMode,
                                   ),
                                 ),
                               ),
@@ -193,7 +196,7 @@ class _MealFormViewState extends State<MealFormView> {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       if (index == _ingredientItems.length) {
-                        if (editMode) {
+                        if (editMode || _createMode) {
                           return AddIngredientButton(_addEmptyIngredient);
                         } else {
                           return SizedBox();
@@ -202,7 +205,7 @@ class _MealFormViewState extends State<MealFormView> {
 
                       return IngredientListItem(
                           _removeIngredient,
-                          _isEditable.value,
+                          _isEditable.value || _createMode,
                           _ingredientItems[index].isNameError,
                           _ingredientItems[index].item,
                           _ingredientItems[index].nameController,
@@ -225,7 +228,7 @@ class _MealFormViewState extends State<MealFormView> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (!editMode) Container(
+              if (!editMode && !_createMode) Container(
                 margin: _buttonMargin,
                 child: FloatingActionButton(
                   onPressed: _onEdit,
@@ -233,7 +236,7 @@ class _MealFormViewState extends State<MealFormView> {
                   child: const Icon(Icons.edit),
                 ),
               ),
-              if (editMode) Container(
+              if (editMode || _createMode) Container(
                 margin: _buttonMargin,
                 child: FloatingActionButton(
                   onPressed: _onCancel,
@@ -241,7 +244,7 @@ class _MealFormViewState extends State<MealFormView> {
                   child: const Icon(Icons.cancel),
                 ),
               ),
-              if (editMode) Container(
+              if (editMode || _createMode) Container(
                 margin: _buttonMargin,
                 child: FloatingActionButton(
                   onPressed: _onSave,
@@ -262,9 +265,7 @@ class _MealFormViewState extends State<MealFormView> {
 
   void _exitEditMode() {
     _isEditable.value = false;
-    setState(() {
-      _ingredientsToRemove = <int>[];
-    });
+    setState(() => _ingredientsToRemove = <int>[]);
   }
 
   void _onCancel() {
@@ -273,37 +274,61 @@ class _MealFormViewState extends State<MealFormView> {
     } else {
       _resetMealName();
       _exitEditMode();
-      _reloadForm();
+      _reloadForm(this.widget.arg?.mealId);
     }
   }
 
   void _onSave() async {
-    if (this._meal != null) {
-      if (!_validateIngredientInputs()) {
-        return;
-      }
+    bool isMealNameValid = _validateMealName();
+    bool areIngredientsValid = _validateIngredientInputs();
+    if (!isMealNameValid || !areIngredientsValid) {
+      return;
+    }
 
-      await MealDao.update(this._meal!.id, _mealNameController.value.text, _mealDescriptionController.value.text);
+    if (!_createMode) {
+      await MealDao.update(this._meal!.id,
+                           _mealNameController.value.text,
+                           _mealDescriptionController.value.text);
       _ingredientItems.forEach((item) async {
-        Ingredient ingredient = item.item;
         String name = item.nameController.value.text;
         String quantity = item.quantityController.value.text;
         if (item.isNew) {
           await IngredientDao.save(this._meal!.id, name, quantity);
         } else {
+          Ingredient ingredient = item.item;
           await IngredientDao.update(ingredient.id, name, quantity);
         }
       });
       _ingredientsToRemove.forEach((id) async => await IngredientDao.deleteById(id));
 
       _exitEditMode();
+      _reloadForm(this.widget.arg?.mealId);
+    } else {
+      int mealId = await MealDao
+          .save(_mealNameController.value.text, _mealDescriptionController.value.text);
+      _ingredientItems.forEach((item) async {
+        String name = item.nameController.value.text;
+        String quantity = item.quantityController.value.text;
+        await IngredientDao.save(mealId, name, quantity);
+      });
+      setState(() => _createMode = false);
+      _reloadForm(mealId);
     }
-    _reloadForm();
+
+  }
+
+  bool _validateMealName() {
+    if (_mealNameController.value.text.trim().isEmpty) {
+      setState(() => _isMealNameError = true);
+      return false;
+    }
+    setState(() => _isMealNameError = false);
+    return true;
   }
 
   bool _validateIngredientInputs() {
     Iterable<IngredientListItemController> emptyItems = _ingredientItems
-        .where((item) => item.nameController.value.text.isEmpty);
+        .where((item) => item.nameController.value.text.trim().isEmpty);
     if (emptyItems.length == 0) {
       return true;
     }
@@ -313,9 +338,7 @@ class _MealFormViewState extends State<MealFormView> {
         .forEach((item) {
           item.isNameError = true;
     });
-    setState(() {
-      _ingredientItems = _ingredientItems;
-    });
+    setState(() => _ingredientItems = _ingredientItems);
 
     return false;
   }
@@ -330,8 +353,7 @@ class _MealFormViewState extends State<MealFormView> {
     _mealNameController.value = TextEditingValue(text: _meal!.name);
   }
 
-  void _reloadForm() {
-    int? mealId = this.widget.arg?.mealId;
+  void _reloadForm(int? mealId) {
     if (mealId != null) {
       _loadMeal(mealId);
       _loadIngredients(mealId);
