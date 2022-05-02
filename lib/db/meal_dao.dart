@@ -8,7 +8,13 @@ class MealDao {
         .query('meal');
     return List.generate(
         maps.length,
-            (i) => Meal(id: maps[i]['id'], name: maps[i]['name'], description: maps[i]['description']));
+            (i) => Meal(
+                id: maps[i]['id'],
+                name: maps[i]['name'],
+                description: maps[i]['description'],
+                isDeleted: (maps[i]['is_deleted'] as String).toLowerCase() == "true",
+            )
+    );
   }
 
   static Future<Meal?> getById(int id) async {
@@ -18,7 +24,13 @@ class MealDao {
     if (mealsCount == 0) {
       return null;
     }
-    return Meal(id: maps[0]['id'], name: maps[0]['name'], description: maps[0]['description']);
+
+    return Meal(
+      id: maps[0]['id'],
+      name: maps[0]['name'],
+      description: maps[0]['description'],
+      isDeleted: (maps[0]['is_deleted'] as String).toLowerCase() == "true",
+    );
   }
 
   static Future<int> save(String name, String description) async {
