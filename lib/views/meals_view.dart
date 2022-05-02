@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/components/meal_list_item.dart';
 import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/meal_dao.dart';
@@ -19,10 +20,10 @@ class _MealsViewState extends State<MealsView> {
   @override
   void initState() {
     super.initState();
-    loadMeals();
+    _loadMeals();
   }
 
-  void loadMeals() async {
+  void _loadMeals() async {
     List<Meal> allMeals = await MealDao.loadAll();
     _availableMeals.value = allMeals.where((meal) => !meal.isDeleted).toList();
   }
@@ -44,31 +45,10 @@ class _MealsViewState extends State<MealsView> {
                 return ListView.builder(
                   itemCount: items.length,
                   itemBuilder: (context, index) {
-                    final int mealId = items[index].id;
-                    final String mealName = items[index].name;
-
-                    return InkWell(
-                      child: Container(
-                        padding: EdgeInsets.all(20.0),
-                        margin: EdgeInsets.all(5.0),
-                        decoration: BoxDecoration(
-                          border: Border(bottom: BorderSide(color: Colors.black38))
-                        ),
-                        child: Text(
-                          mealName,
-                          style: TextStyle(
-                            // color: Colors.white,
-                            fontSize: 17.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      onTap: () => Navigator.pushNamed(
-                          context,
-                          MealFormView.routeName,
-                          arguments: MealFormViewArguments(mealId)
-                      ),
-                    );
+                    return MealListItem(
+                        _loadMeals,
+                        items[index],
+                        key: Key(items[index].id.toString()));
                   },
                   shrinkWrap: true,
                 );

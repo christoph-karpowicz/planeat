@@ -159,10 +159,6 @@ class _MainMealListItemState extends State<MainMealListItem> {
                 ),
               ],
             )
-            // ListTile(
-            //   onTap: () => print('${this.widget._item}'),
-            //   title: Text('${DateFormat('HH:mm').format(this.widget._item.date)} | ${this.widget._item.name}'),
-            // ),
           ),
         ],
       ),

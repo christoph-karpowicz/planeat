@@ -106,7 +106,13 @@ class _MealFormViewState extends State<MealFormView> {
                         child: TextFormField(
                           controller: _mealNameController,
                           decoration: InputDecoration(
-                            border: UnderlineInputBorder(
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _isMealNameError ? Colors.red : Colors.grey,
+                                  width: 2.0,
+                                )
+                            ),
+                            enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                   color: _isMealNameError ? Colors.red : Colors.grey,
                                 )
@@ -167,8 +173,18 @@ class _MealFormViewState extends State<MealFormView> {
                                   maxLines: null,
                                   controller: _mealDescriptionController,
                                   decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
                                     enabled: editMode || _createMode,
+                                    focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey,
+                                          width: 2.0,
+                                        )
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey,
+                                        )
+                                    ),
                                   ),
                                 ),
                               ),

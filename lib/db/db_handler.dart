@@ -19,7 +19,7 @@ class DatabaseHandler {
         bool tablesCreated = false;
         try {
           await db.execute(
-            "CREATE TABLE meal(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', is_deleted BOOLEAN DEFAULT FALSE)",
+            "CREATE TABLE meal(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', is_deleted BOOLEAN NOT NULL DEFAULT FALSE)",
           );
           await db.execute(
             "CREATE TABLE ingredient(id INTEGER PRIMARY KEY AUTOINCREMENT, meal_id INTEGER, name TEXT NOT NULL, quantity TEXT NOT NULL, FOREIGN KEY (meal_id) REFERENCES meal (id))",

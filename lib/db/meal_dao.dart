@@ -19,7 +19,7 @@ class MealDao {
 
   static Future<Meal?> getById(int id) async {
     final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb()
-        .rawQuery('SELECT id, name, description FROM meal WHERE id = ?', <Object>[id]);
+        .rawQuery('SELECT id, name, description, is_deleted FROM meal WHERE id = ?', <Object>[id]);
     final mealsCount = maps.length;
     if (mealsCount == 0) {
       return null;
@@ -44,6 +44,13 @@ class MealDao {
     await DatabaseHandler.getDb().execute(
         "UPDATE meal SET name = ?, description = ? WHERE id = ?",
         <Object>[name, description, id]
+    );
+  }
+
+  static Future<void> deleteById(int id) async {
+    await DatabaseHandler.getDb().execute(
+        "UPDATE meal SET is_deleted = 'TRUE' WHERE id = ?",
+        <Object>[id]
     );
   }
 

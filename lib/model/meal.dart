@@ -15,14 +15,14 @@ class Meal {
       : id = res["id"],
         name = res["name"],
         description = res["description"],
-        isDeleted = res["isDeleted"];
+        isDeleted = res["is_deleted"];
 
   Map<String, Object?> toMap() {
     return {
       'id': id,
       'name': name,
       'description': description,
-      'isDeleted': isDeleted
+      'is_deleted': isDeleted
     };
   }
 }
