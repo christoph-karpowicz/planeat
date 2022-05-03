@@ -15,6 +15,8 @@ class DatabaseHandler {
         // await db.execute("DROP TABLE IF EXISTS meal");
         // await db.execute("DROP TABLE IF EXISTS ingredient");
         // await db.execute("DROP TABLE IF EXISTS meal_item");
+        // await db.execute("DROP TABLE IF EXISTS shopping_list");
+        // await db.execute("DROP TABLE IF EXISTS shopping_item");
 
         bool tablesCreated = false;
         try {
@@ -26,6 +28,12 @@ class DatabaseHandler {
           );
           await db.execute(
             "CREATE TABLE meal_item(id INTEGER PRIMARY KEY AUTOINCREMENT, meal_id INTEGER NOT NULL, date TEXT NOT NULL, FOREIGN KEY (meal_id) REFERENCES meal (id))",
+          );
+          await db.execute(
+            "CREATE TABLE shopping_list(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL)",
+          );
+          await db.execute(
+            "CREATE TABLE shopping_item(id INTEGER PRIMARY KEY AUTOINCREMENT, shopping_list_id INTEGER NOT NULL, name TEXT NOT NULL, quantity TEXT NOT NULL, bought BOOLEAN NOT NULL DEFAULT FALSE, FOREIGN KEY (shopping_list_id) REFERENCES shopping_list (id))",
           );
           tablesCreated = true;
         } catch (e) {
@@ -70,16 +78,16 @@ class DatabaseHandler {
           "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='kanapki'), 'bułki', '2szt')",
         );
         await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-04-01 08:00:00.000Z')",
+          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-05-03 08:00:00.000Z')",
         );
         await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='pyszny ryż z ciecierzycą'), '2022-04-01 15:00:00.000Z')",
+          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='pyszny ryż z ciecierzycą'), '2022-05-03 15:00:00.000Z')",
         );
         await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-04-01 18:00:00.000Z')",
+          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-05-03 18:00:00.000Z')",
         );
         await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='kanapki'), '2022-04-01 20:00:00.000Z')",
+          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='kanapki'), '2022-05-03 20:00:00.000Z')",
         );
         print("Database initialized.");
       },

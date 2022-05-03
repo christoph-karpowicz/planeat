@@ -248,6 +248,7 @@ class _MealFormViewState extends State<MealFormView> {
               if (!editMode && !_createMode) Container(
                 margin: _buttonMargin,
                 child: FloatingActionButton(
+                  heroTag: "mfedit",
                   onPressed: _onEdit,
                   backgroundColor: Colors.green,
                   child: const Icon(Icons.edit),
@@ -256,6 +257,7 @@ class _MealFormViewState extends State<MealFormView> {
               if (editMode || _createMode) Container(
                 margin: _buttonMargin,
                 child: FloatingActionButton(
+                  heroTag: "mfcancel",
                   onPressed: _onCancel,
                   backgroundColor: Colors.red,
                   child: const Icon(Icons.cancel),
@@ -264,6 +266,7 @@ class _MealFormViewState extends State<MealFormView> {
               if (editMode || _createMode) Container(
                 margin: _buttonMargin,
                 child: FloatingActionButton(
+                  heroTag: "mfsave",
                   onPressed: _onSave,
                   backgroundColor: Colors.green,
                   child: const Icon(Icons.save),
