@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/model/meal.dart';
 import 'package:planeat/views/meal_form.dart';
+import 'package:planeat/views/meals_view.dart';
 
 class MealListItem extends StatefulWidget {
   final VoidCallback _reload;
@@ -60,7 +61,9 @@ class _MealListItemState extends State<MealListItem> {
                         Navigator.pushNamed(
                             context,
                             MealFormView.routeName,
-                            arguments: MealFormViewArguments(widget._item.id)
+                            arguments: MealFormViewArguments(
+                                widget._item.id,
+                                MealsView.routeName)
                         ),
                     ),
                     alignment: Alignment.centerLeft,
@@ -113,20 +116,28 @@ class _MealListItemState extends State<MealListItem> {
                 borderRadius: BorderRadius.circular(12.0),
                 color: Colors.white,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                      widget._item.name,
-                      style: TextStyle(
-                        // color: Colors.white,
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.bold,
+              child: InkWell(
+                onTap: () => Navigator.pushNamed(
+                    context,
+                    MealFormView.routeName,
+                    arguments: MealFormViewArguments(
+                        widget._item.id,
+                        MealsView.routeName)
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        widget._item.name,
+                        style: TextStyle(
+                          fontSize: 17.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               )
           ),
         ],

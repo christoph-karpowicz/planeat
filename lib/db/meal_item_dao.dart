@@ -22,13 +22,14 @@ class MealItemDao {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final String dateFormatted = formatter.format(date);
     final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb().rawQuery(
-        "SELECT meal_item.id, meal.name, meal.description, meal_item.date "
+        "SELECT meal_item.id, meal.id as meal_id, meal.name, meal.description, meal_item.date "
             "FROM meal_item INNER JOIN meal ON meal_item.meal_id = meal.id "
             "WHERE strftime('%Y-%m-%d', meal_item.date) = ?",
         <String>[dateFormatted]);
 
     List<MealItemDto> mealsForDay = List.generate(maps.length, (i) => MealItemDto(
       id: maps[i]['id'],
+      mealId: maps[i]['meal_id'],
       name: maps[i]['name'],
       description: maps[i]['description'],
       date: DateTime.parse(maps[i]['date']),

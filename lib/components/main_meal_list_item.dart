@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:planeat/db/meal_item_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:intl/intl.dart';
+import 'package:planeat/main.dart';
+import 'package:planeat/views/meal_form.dart';
 
 class MainMealListItem extends StatefulWidget {
   final VoidCallback _reloadSelectedMeals;
@@ -112,52 +114,61 @@ class _MainMealListItemState extends State<MainMealListItem> {
               borderRadius: BorderRadius.circular(12.0),
               color: Colors.white,
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    height: HEIGHT,
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.only(left: 5.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.access_time, size: 30.0,),
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Text(
-                              '${DateFormat('HH:mm').format(this.widget._item.date)}',
-                              style: TextStyle(
-                                fontSize: 15.0,
+            child: InkWell(
+              onTap: () => Navigator.pushNamed(
+                  context,
+                  MealFormView.routeName,
+                  arguments: MealFormViewArguments(
+                      widget._item.mealId,
+                      CalendarView.routeName)
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      height: HEIGHT,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.only(left: 5.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.access_time, size: 30.0,),
+                          Expanded(
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                '${DateFormat('HH:mm').format(this.widget._item.date)}',
+                                style: TextStyle(
+                                  fontSize: 15.0,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      )
                     )
-                  )
-                ),
-                Expanded(
-                  flex: 6,
-                  child: Container(
-                    height: HEIGHT,
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(left: 10.0),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(color: Colors.grey)
+                  ),
+                  Expanded(
+                    flex: 6,
+                    child: Container(
+                      height: HEIGHT,
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.only(left: 10.0),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: Colors.grey)
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      '${this.widget._item.name}',
-                      style: TextStyle(
-                        fontSize: 17.0,
+                      child: Text(
+                        '${this.widget._item.name}',
+                        style: TextStyle(
+                          fontSize: 17.0,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             )
           ),
         ],

@@ -9,8 +9,9 @@ import 'package:planeat/model/meal.dart';
 
 class MealFormViewArguments {
   final int? mealId;
+  final String fromRoute;
 
-  MealFormViewArguments(this.mealId);
+  MealFormViewArguments(this.mealId, this.fromRoute);
 }
 
 class MealFormView extends StatefulWidget {
@@ -83,7 +84,7 @@ class _MealFormViewState extends State<MealFormView> {
         backgroundColor: Colors.lightGreen,
         leading: new IconButton(
             icon: new Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pushNamed(context, '/meals'),
+            onPressed: () => Navigator.pushNamed(context, widget.arg!.fromRoute),
         ),
       ),
       body: ValueListenableBuilder(
@@ -189,7 +190,7 @@ class _MealFormViewState extends State<MealFormView> {
                                 ),
                               ),
                             ],
-                          )
+                          ),
                       ),
                     ),
                   ),

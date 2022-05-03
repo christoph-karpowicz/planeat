@@ -61,13 +61,12 @@ class _MealsViewState extends State<MealsView> {
       floatingActionButton: Container(
         margin: EdgeInsets.only(bottom: 50.0),
         child: FloatingActionButton(
-          onPressed: () {
+          onPressed: () =>
             Navigator.pushNamed(
                 context,
                 MealFormView.routeName,
-                arguments: MealFormViewArguments(null)
-            );
-          },
+                arguments: MealFormViewArguments(null, MealsView.routeName)
+            ),
           backgroundColor: Colors.green,
           child: const Icon(Icons.add),
         ),
