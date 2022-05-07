@@ -3,6 +3,7 @@ import 'package:planeat/components/meal_list_item.dart';
 import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/meal_dao.dart';
+import 'package:planeat/main.dart';
 import 'package:planeat/model/meal.dart';
 import 'package:planeat/views/meal_form.dart';
 
@@ -34,6 +35,10 @@ class _MealsViewState extends State<MealsView> {
       appBar: AppBar(
         title: const Text('Meals'),
         backgroundColor: Colors.lightGreen,
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pushNamed(context, CalendarView.routeName),
+        ),
       ),
       body: Column(
         children: [

@@ -89,7 +89,7 @@ class _MealFormViewState extends State<MealFormView> {
       ),
       body: ValueListenableBuilder(
         valueListenable: _isEditable,
-        builder: (BuildContext context, bool editMode, Widget? child) {
+        builder: (BuildContext context, bool editMode, _) {
           return SingleChildScrollView(
             child: Column(
               children: [
@@ -241,7 +241,7 @@ class _MealFormViewState extends State<MealFormView> {
       // Buttons
       floatingActionButton: ValueListenableBuilder(
         valueListenable: _isEditable,
-        builder: (BuildContext context, bool editMode, Widget? child) {
+        builder: (BuildContext context, bool editMode, _) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
