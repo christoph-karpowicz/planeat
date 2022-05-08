@@ -30,7 +30,7 @@ class DatabaseHandler {
             "CREATE TABLE meal_item(id INTEGER PRIMARY KEY AUTOINCREMENT, meal_id INTEGER NOT NULL, date TEXT NOT NULL, FOREIGN KEY (meal_id) REFERENCES meal (id))",
           );
           await db.execute(
-            "CREATE TABLE shopping_list(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL)",
+            "CREATE TABLE shopping_list(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, date TEXT NOT NULL)",
           );
           await db.execute(
             "CREATE TABLE shopping_item(id INTEGER PRIMARY KEY AUTOINCREMENT, shopping_list_id INTEGER NOT NULL, name TEXT NOT NULL, quantity TEXT NOT NULL, bought BOOLEAN NOT NULL DEFAULT FALSE, FOREIGN KEY (shopping_list_id) REFERENCES shopping_list (id))",

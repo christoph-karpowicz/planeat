@@ -9,15 +9,16 @@ class ShoppingListDao {
     return List.generate(
         maps.length,
             (i) => ShoppingList(
-          id: maps[i]['id'],
-          date: maps[i]['date'],
+              id: maps[i]['id'],
+              name: maps[i]['name'],
+              date: maps[i]['date'],
         )
     );
   }
 
   static Future<ShoppingList?> getById(int id) async {
     final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb()
-        .rawQuery('SELECT id, date FROM shopping_list WHERE id = ?', <Object>[id]);
+        .rawQuery('SELECT id, name, date FROM shopping_list WHERE id = ?', <Object>[id]);
     final mealsCount = maps.length;
     if (mealsCount == 0) {
       return null;
@@ -25,12 +26,14 @@ class ShoppingListDao {
 
     return ShoppingList(
       id: maps[0]['id'],
+      name: maps[0]['name'],
       date: maps[0]['date'],
     );
   }
 
-  static Future<int> save(String date) async {
+  static Future<int> save(String name, String date) async {
     return await DatabaseHandler.getDb().insert("shopping_list", {
+      "name": name,
       "date": date,
     });
   }

@@ -6,8 +6,10 @@ import 'package:planeat/components/nav_icons.dart';
 import 'package:planeat/db/db_handler.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/db/meal_item_dao.dart';
+import 'package:planeat/db/shopping_list_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/model/meal.dart';
+import 'package:planeat/utils/date_utils.dart';
 import 'package:planeat/views/meal_form.dart';
 import 'package:planeat/views/meals_view.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -88,53 +90,77 @@ class _CalendarViewState extends State<CalendarView> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           const SizedBox(height: 8.0),
-          TableCalendar<MealItemDto>(
-            rangeStartDay: _rangeStart,
-            rangeEndDay: _rangeEnd,
-            rangeSelectionMode: _rangeSelectionMode,
-            firstDay: DateTime.utc(2022, 1, 1),
-            lastDay: DateTime.utc(2032, 1, 1),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            headerVisible: true,
-            calendarFormat: CalendarFormat.month,
-            startingDayOfWeek: StartingDayOfWeek.monday,
-            headerStyle: HeaderStyle(
-              titleCentered: true,
-              formatButtonVisible: false,
-            ),
-            calendarStyle: CalendarStyle(
-              selectedDecoration: BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
+          Stack(
+            children: [
+              TableCalendar<MealItemDto>(
+                rangeStartDay: _rangeStart,
+                rangeEndDay: _rangeEnd,
+                rangeSelectionMode: _rangeSelectionMode,
+                firstDay: DateTime.utc(2022, 1, 1),
+                lastDay: DateTime.utc(2032, 1, 1),
+                focusedDay: _focusedDay,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                headerVisible: true,
+                calendarFormat: CalendarFormat.month,
+                startingDayOfWeek: StartingDayOfWeek.monday,
+                headerStyle: HeaderStyle(
+                  titleCentered: true,
+                  formatButtonVisible: false,
+                ),
+                calendarStyle: CalendarStyle(
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                  todayDecoration: BoxDecoration(
+                    color: Colors.lightGreen,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                onDaySelected: _onDaySelected,
+                onRangeSelected: _onRangeSelected,
+                calendarBuilders: CalendarBuilders(
+                  dowBuilder: (context, day) {
+                    if (<int>[DateTime.saturday, DateTime.sunday].contains(day.weekday)) {
+                      final text = DateFormat.E().format(day);
+                      return Center(
+                        child: Text(
+                          text,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
+                  },
+                  markerBuilder: (context, day, meals) {
+                    return CalendarMealMarker(
+                        day,
+                        key: _markersKey
+                    );
+                  }
+                ),
               ),
-              todayDecoration: BoxDecoration(
-                color: Colors.lightGreen,
-                shape: BoxShape.circle,
-              ),
-            ),
-            onDaySelected: _onDaySelected,
-            onRangeSelected: _onRangeSelected,
-            calendarBuilders: CalendarBuilders(
-              dowBuilder: (context, day) {
-                if (<int>[DateTime.saturday, DateTime.sunday].contains(day.weekday)) {
-                  final text = DateFormat.E().format(day);
-                  return Center(
-                    child: Text(
-                      text,
-                      style: TextStyle(color: Colors.red),
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    margin: EdgeInsets.all(10.0),
+                    child: Visibility(
+                      visible: _rangeSelectionMode == RangeSelectionMode.toggledOn && _rangeEnd != null,
+                      child: FloatingActionButton(
+                        heroTag: "crslist",
+                        onPressed: () async {
+                          // await ShoppingListDao.save(DateTime.now());
+                        },
+                        backgroundColor: Colors.green,
+                        child: const Icon(Icons.shopping_cart),
+                      ),
                     ),
-                  );
-                }
-              },
-              markerBuilder: (context, day, meals) {
-                return CalendarMealMarker(
-                    day,
-                    key: _markersKey
-                );
-              }
-            ),
+                  ),
+                ),
+              ),
+            ],
           ),
+
           const SizedBox(height: 8.0),
           Expanded(
             child: Container(
@@ -255,7 +281,7 @@ class _CalendarViewState extends State<CalendarView> {
       final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(_selectedDay!);
       final String newTimeHour = newTime.hour.toString().padLeft(2, "0");
       final String newTimeMinutes = newTime.minute.toString().padLeft(2, "0");
-      String mealDate = "$selectedDayFormatted $newTimeHour:$newTimeMinutes:00.000Z";
+      String mealDate = getSqliteDate(selectedDayFormatted, newTimeHour, newTimeMinutes);
 
       MealItemDao.save(mealId, mealDate);
       _reloadSelectedMeals();
