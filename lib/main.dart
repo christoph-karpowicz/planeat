@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/components/calendar_meal_marker.dart';
 import 'package:planeat/components/main_meal_list_item.dart';
 import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
@@ -58,29 +59,25 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   final ValueNotifier<List<MealItemDto>> _selectedMeals = ValueNotifier(<MealItemDto>[]);
-  ValueNotifier<Map<String, List<MealItemDto>>> _allScheduledMeals = ValueNotifier({});
   final ValueNotifier<List<Meal>> _availableMeals = ValueNotifier(<Meal>[]);
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
+  Key _markersKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
     print("Init state...");
     _loadMeals();
-    _selectedDay = _focusedDay;
-    _onDaySelected(_selectedDay!, _focusedDay);
+    Future.delayed(Duration(milliseconds: 500))
+        .then((value) => _onDaySelected(_selectedDay!, _focusedDay));
   }
 
   void _loadMeals() async {
     _availableMeals.value = await MealDao.loadAll();
-  }
-
-  void _loadAllScheduledMeals(DateTime day) async {
-    _allScheduledMeals.value = await MealItemDao.loadAndMapFrom3Months(day);
   }
 
   @override
@@ -91,39 +88,53 @@ class _CalendarViewState extends State<CalendarView> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           const SizedBox(height: 8.0),
-          ValueListenableBuilder(
-            valueListenable: _allScheduledMeals,
-            builder: (context, items, _) {
-              return TableCalendar<MealItemDto>(
-                rangeStartDay: _rangeStart,
-                rangeEndDay: _rangeEnd,
-                rangeSelectionMode: _rangeSelectionMode,
-                firstDay: DateTime.utc(2022, 1, 1),
-                lastDay: DateTime.utc(2032, 1, 1),
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                headerVisible: true,
-                calendarFormat: CalendarFormat.month,
-                startingDayOfWeek: StartingDayOfWeek.monday,
-                headerStyle: HeaderStyle(
-                  titleCentered: true,
-                  formatButtonVisible: false,
-                ),
-                calendarStyle: CalendarStyle(
-                  selectedDecoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  todayDecoration: BoxDecoration(
-                    color: Colors.lightGreen,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                onDaySelected: _onDaySelected,
-                onRangeSelected: _onRangeSelected,
-                eventLoader: _getMealsForDay,
-              );
-            }
+          TableCalendar<MealItemDto>(
+            rangeStartDay: _rangeStart,
+            rangeEndDay: _rangeEnd,
+            rangeSelectionMode: _rangeSelectionMode,
+            firstDay: DateTime.utc(2022, 1, 1),
+            lastDay: DateTime.utc(2032, 1, 1),
+            focusedDay: _focusedDay,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            headerVisible: true,
+            calendarFormat: CalendarFormat.month,
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            headerStyle: HeaderStyle(
+              titleCentered: true,
+              formatButtonVisible: false,
+            ),
+            calendarStyle: CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: Colors.lightGreen,
+                shape: BoxShape.circle,
+              ),
+            ),
+            onDaySelected: _onDaySelected,
+            onRangeSelected: _onRangeSelected,
+            calendarBuilders: CalendarBuilders(
+              dowBuilder: (context, day) {
+                if (<int>[DateTime.saturday, DateTime.sunday].contains(day.weekday)) {
+                  final text = DateFormat.E().format(day);
+
+                  return Center(
+                    child: Text(
+                      text,
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+              },
+              markerBuilder: (context, day, meals) {
+                return CalendarMealMarker(
+                    day,
+                    key: _markersKey
+                );
+              }
+            ),
           ),
           const SizedBox(height: 8.0),
           Expanded(
@@ -218,7 +229,6 @@ class _CalendarViewState extends State<CalendarView> {
       _rangeEnd = null;
       _rangeSelectionMode = RangeSelectionMode.toggledOff;
     });
-    _loadAllScheduledMeals(_selectedDay!);
     _reloadSelectedMeals();
   }
 
@@ -254,16 +264,9 @@ class _CalendarViewState extends State<CalendarView> {
 
   void _reloadSelectedMeals() async {
     _selectedMeals.value = await MealItemDao.loadAllFromDay(_selectedDay!);
-    _loadAllScheduledMeals(_selectedDay!);
-  }
-
-  List<MealItemDto> _getMealsForDay(DateTime day) {
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
-    final String dateFormatted = formatter.format(day);
-    if (_allScheduledMeals.value[dateFormatted] != null) {
-      return _allScheduledMeals.value[dateFormatted]!;
-    }
-    return <MealItemDto>[];
+    setState(() {
+      _markersKey = UniqueKey();
+    });
   }
 
   @override
