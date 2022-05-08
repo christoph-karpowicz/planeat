@@ -119,7 +119,6 @@ class _CalendarViewState extends State<CalendarView> {
               dowBuilder: (context, day) {
                 if (<int>[DateTime.saturday, DateTime.sunday].contains(day.weekday)) {
                   final text = DateFormat.E().format(day);
-
                   return Center(
                     child: Text(
                       text,
@@ -152,7 +151,9 @@ class _CalendarViewState extends State<CalendarView> {
                       return MainMealListItem(
                           _reloadSelectedMeals,
                           item,
-                          _selectedDay!,
+                          item.date,
+                          _rangeSelectionMode == RangeSelectionMode.toggledOn,
+                          index == 0 || items[index - 1].date.day != items[index].date.day,
                           key: Key(item.id.toString()));
                     },
                     shrinkWrap: true,
@@ -233,9 +234,6 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) async {
-    print(start);
-    print(end);
-    print(focusedDay);
     setState(() {
       _selectedDay = null;
       _focusedDay = focusedDay;
@@ -243,7 +241,9 @@ class _CalendarViewState extends State<CalendarView> {
       _rangeEnd = end;
       _rangeSelectionMode = RangeSelectionMode.toggledOn;
     });
-    _selectedMeals.value = <MealItemDto>[];
+    if (start != null && end != null) {
+      _selectedMeals.value = await MealItemDao.loadAllFromRange(start, end);
+    }
   }
 
   void _selectMealTime(int mealId) async {

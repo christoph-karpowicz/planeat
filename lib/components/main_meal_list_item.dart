@@ -9,11 +9,15 @@ class MainMealListItem extends StatefulWidget {
   final VoidCallback _reloadSelectedMeals;
   final MealItemDto _item;
   DateTime _selectedDay;
+  final bool _isRange;
+  final bool _isFirstFromDay;
 
   MainMealListItem(
       this._reloadSelectedMeals,
       this._item,
       this._selectedDay,
+      this._isRange,
+      this._isFirstFromDay,
       {Key? key}): super(key: key);
 
   @override
@@ -30,146 +34,172 @@ class _MainMealListItemState extends State<MainMealListItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: Stack(
+      child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(
-              left: 12.0,
-              right: 12.0,
-              bottom: 6.0,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.0),
-            ),
+          if (widget._isRange && widget._isFirstFromDay) Container(
+            margin: EdgeInsets.only(bottom: 5.0, left: 5.0, right: 5.0),
             child: Row(
               children: [
-
-                // Edit button
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(12.0),
-                          bottomLeft: Radius.circular(12.0)
-                      ),
-                      color: Colors.green,
+                  flex: 1,
+                  child: Text(
+                    '${DateFormat('dd/MM/yyyy').format(this.widget._item.date)}',
+                    style: TextStyle(
+                      fontSize: 15.0,
                     ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 30.0,
-                      ),
-                      onPressed: () => {
-                        _selectNewTime()
-                      },
-                    ),
-                    alignment: Alignment.centerLeft,
                   ),
                 ),
-
-                // Delete button
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(12.0),
-                          bottomRight: Radius.circular(12.0)
-                      ),
-                      color: Colors.red,
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.delete_forever,
-                        color: Colors.white,
-                        size: 30.0,
-                      ),
-                      onPressed: () => {
-                        MealItemDao.deleteById(this.widget._item.id),
-                        this.widget._reloadSelectedMeals()
-                      },
-                    ),
-                    alignment: Alignment.centerRight,
+                  flex: 3,
+                  child: Divider(
+                    color: Colors.black87,
                   ),
-                ),
+                )
               ],
             ),
-            height: HEIGHT,
           ),
+          Stack(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(
+                  left: 12.0,
+                  right: 12.0,
+                  bottom: 6.0,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Row(
+                  children: [
 
-          AnimatedContainer(
-            onEnd: () => {
-              _setAnimation(false)
-            },
-            duration: const Duration(milliseconds: 90),
-            transform: Matrix4.translationValues(_topLayerX, 0, 0),
-            height: HEIGHT,
-            margin: const EdgeInsets.only(
-              left: 12.0,
-              right: 12.0,
-              bottom: 6.0,
-            ),
-            decoration: BoxDecoration(
-              border: Border.all(),
-              borderRadius: BorderRadius.circular(12.0),
-              color: Colors.white,
-            ),
-            child: InkWell(
-              onTap: () => Navigator.pushNamed(
-                  context,
-                  MealFormView.routeName,
-                  arguments: MealFormViewArguments(
-                      widget._item.mealId,
-                      CalendarView.routeName)
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      height: HEIGHT,
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.only(left: 5.0),
-                      child: Row(
-                        children: [
-                          Icon(Icons.access_time, size: 30.0,),
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${DateFormat('HH:mm').format(this.widget._item.date)}',
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                ),
-                              ),
-                            ),
+                    // Edit button
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(12.0),
+                              bottomLeft: Radius.circular(12.0)
                           ),
-                        ],
-                      )
-                    )
-                  ),
-                  Expanded(
-                    flex: 6,
-                    child: Container(
-                      height: HEIGHT,
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(left: 10.0),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(color: Colors.grey)
+                          color: Colors.green,
                         ),
-                      ),
-                      child: Text(
-                        '${this.widget._item.name}',
-                        style: TextStyle(
-                          fontSize: 17.0,
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 30.0,
+                          ),
+                          onPressed: () => {
+                            _selectNewTime()
+                          },
                         ),
+                        alignment: Alignment.centerLeft,
                       ),
                     ),
-                  ),
-                ],
+
+                    // Delete button
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(12.0),
+                              bottomRight: Radius.circular(12.0)
+                          ),
+                          color: Colors.red,
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.delete_forever,
+                            color: Colors.white,
+                            size: 30.0,
+                          ),
+                          onPressed: () => {
+                            MealItemDao.deleteById(this.widget._item.id),
+                            this.widget._reloadSelectedMeals()
+                          },
+                        ),
+                        alignment: Alignment.centerRight,
+                      ),
+                    ),
+                  ],
+                ),
+                height: HEIGHT,
               ),
-            )
+
+              AnimatedContainer(
+                onEnd: () => {
+                  _setAnimation(false)
+                },
+                duration: const Duration(milliseconds: 90),
+                transform: Matrix4.translationValues(_topLayerX, 0, 0),
+                height: HEIGHT,
+                margin: const EdgeInsets.only(
+                  left: 12.0,
+                  right: 12.0,
+                  bottom: 6.0,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  borderRadius: BorderRadius.circular(12.0),
+                  color: Colors.white,
+                ),
+                child: InkWell(
+                  onTap: () => Navigator.pushNamed(
+                      context,
+                      MealFormView.routeName,
+                      arguments: MealFormViewArguments(
+                          widget._item.mealId,
+                          CalendarView.routeName)
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          height: HEIGHT,
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.only(left: 5.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.access_time, size: 30.0,),
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '${DateFormat('HH:mm').format(this.widget._item.date)}',
+                                    style: TextStyle(
+                                      fontSize: 15.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        )
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: Container(
+                          height: HEIGHT,
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 10.0),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              left: BorderSide(color: Colors.grey)
+                            ),
+                          ),
+                          child: Text(
+                            '${this.widget._item.name}',
+                            style: TextStyle(
+                              fontSize: 17.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ),
+            ],
           ),
         ],
       ),
