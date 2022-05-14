@@ -3,6 +3,7 @@ import 'package:planeat/components/calendar_meal_marker.dart';
 import 'package:planeat/components/main_meal_list_item.dart';
 import 'package:planeat/components/nav.dart';
 import 'package:planeat/components/nav_icons.dart';
+import 'package:planeat/components/shopping_list_name_input_dialog.dart';
 import 'package:planeat/db/db_handler.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/db/meal_item_dao.dart';
@@ -68,7 +69,6 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
   Key _markersKey = UniqueKey();
-  TextEditingController _shoppingListNameController = TextEditingController();
 
   @override
   void initState() {
@@ -328,50 +328,11 @@ class _CalendarViewState extends State<CalendarView> {
 
   Future<void> _displayShoppingListNameInputDialog() async {
     return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('New shopping list'),
-            content: TextField(
-              controller: _shoppingListNameController,
-              decoration: InputDecoration(hintText: "enter name..."),
-            ),
-            actions: <Widget>[
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  primary: Colors.white,
-                ),
-                child: Text('CANCEL'),
-                onPressed: () {
-                  setState(() {
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  primary: Colors.white,
-                ),
-                child: Text('OK'),
-                onPressed: () {
-                  if (_rangeSelectionMode != RangeSelectionMode.toggledOn) {
-                    return;
-                  }
-
-                  if (_rangeStart != null && _rangeEnd == null) {
-
-                  }
-                  // setState(() {
-                  //   codeDialog = valueText;
-                  //   Navigator.pop(context);
-                  // });
-                },
-              ),
-            ],
-          );
-        });
+      context: context,
+      builder: (context) {
+        return ShoppingListNameInputDialog(_selectedMeals.value);
+      },
+    );
   }
 
   @override

@@ -307,11 +307,11 @@ class _MealFormViewState extends State<MealFormView> {
 
     if (!_createMode) {
       await MealDao.update(this._meal!.id,
-                           _mealNameController.value.text,
+                           _mealNameController.value.text.trim(),
                            _mealDescriptionController.value.text);
       _ingredientItems.forEach((item) async {
-        String name = item.nameController.value.text;
-        String quantity = item.quantityController.value.text;
+        String name = item.nameController.value.text.trim();
+        String quantity = item.quantityController.value.text.trim();
         if (item.isNew) {
           await IngredientDao.save(this._meal!.id, name, quantity);
         } else {
@@ -325,10 +325,10 @@ class _MealFormViewState extends State<MealFormView> {
       _reloadForm(this.widget.arg?.mealId);
     } else {
       int mealId = await MealDao
-          .save(_mealNameController.value.text, _mealDescriptionController.value.text);
+          .save(_mealNameController.value.text.trim(), _mealDescriptionController.value.text);
       _ingredientItems.forEach((item) async {
-        String name = item.nameController.value.text;
-        String quantity = item.quantityController.value.text;
+        String name = item.nameController.value.text.trim();
+        String quantity = item.quantityController.value.text.trim();
         await IngredientDao.save(mealId, name, quantity);
       });
       setState(() => _createMode = false);
