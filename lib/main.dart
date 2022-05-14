@@ -68,14 +68,13 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime? _rangeStart;
   DateTime? _rangeEnd;
   Key _markersKey = UniqueKey();
+  TextEditingController _shoppingListNameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     print("Init state...");
     _loadMeals();
-    Future.delayed(Duration(milliseconds: 500))
-        .then((value) => _onDaySelected(_selectedDay!, _focusedDay));
   }
 
   void _loadMeals() async {
@@ -145,12 +144,13 @@ class _CalendarViewState extends State<CalendarView> {
                   child: Container(
                     margin: EdgeInsets.all(10.0),
                     child: Visibility(
-                      visible: _rangeSelectionMode == RangeSelectionMode.toggledOn && _rangeEnd != null,
+                      visible: _rangeSelectionMode == RangeSelectionMode.toggledOn,
                       child: FloatingActionButton(
                         heroTag: "crslist",
-                        onPressed: () async {
-                          // await ShoppingListDao.save(DateTime.now());
-                        },
+                        onPressed: _displayShoppingListNameInputDialog,
+                        // onPressed: () async {
+                        //   // await ShoppingListDao.save(DateTime.now());
+                        // },
                         backgroundColor: Colors.green,
                         child: const Icon(Icons.shopping_cart),
                       ),
@@ -162,6 +162,7 @@ class _CalendarViewState extends State<CalendarView> {
           ),
 
           const SizedBox(height: 8.0),
+
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -256,7 +257,7 @@ class _CalendarViewState extends State<CalendarView> {
       _rangeEnd = null;
       _rangeSelectionMode = RangeSelectionMode.toggledOff;
     });
-    _reloadSelectedMeals();
+    _reloadSelectedMeals(_selectedDay!);
   }
 
   void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) async {
@@ -269,6 +270,14 @@ class _CalendarViewState extends State<CalendarView> {
     });
     if (start != null && end != null) {
       _selectedMeals.value = await MealItemDao.loadAllFromRange(start, end);
+      setState(() {
+        _markersKey = UniqueKey();
+      });
+    } else if (start != null && end == null) {
+      _selectedMeals.value = await MealItemDao.loadAllFromDay(start);
+      setState(() {
+        _markersKey = UniqueKey();
+      });
     }
   }
 
@@ -277,22 +286,92 @@ class _CalendarViewState extends State<CalendarView> {
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (newTime != null) {
-      final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(_selectedDay!);
-      final String newTimeHour = newTime.hour.toString().padLeft(2, "0");
-      final String newTimeMinutes = newTime.minute.toString().padLeft(2, "0");
+    if (newTime == null) {
+      return;
+    }
+
+    bool isStartRange = _rangeSelectionMode == RangeSelectionMode.toggledOn && _rangeStart != null && _rangeEnd == null;
+    final String newTimeHour = newTime.hour.toString().padLeft(2, "0");
+    final String newTimeMinutes = newTime.minute.toString().padLeft(2, "0");
+
+    if (_rangeSelectionMode == RangeSelectionMode.toggledOff || isStartRange) {
+      DateTime selectedDay = isStartRange ? _rangeStart! : _selectedDay!;
+      final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(selectedDay);
       String mealDate = getSqliteDate(selectedDayFormatted, newTimeHour, newTimeMinutes);
 
       MealItemDao.save(mealId, mealDate);
-      _reloadSelectedMeals();
+      _reloadSelectedMeals(selectedDay);
+    }
+    if (_rangeSelectionMode == RangeSelectionMode.toggledOn && _rangeStart != null && _rangeEnd != null) {
+      int dayDiff = _rangeEnd!.difference(_rangeStart!).inDays;
+      List<DateTime> days = List.generate(dayDiff + 1, (i) => DateTime(_rangeStart!.year, _rangeStart!.month, _rangeStart!.day + i));
+      days.forEach((day) {
+        final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(day);
+        String mealDate = getSqliteDate(selectedDayFormatted, newTimeHour, newTimeMinutes);
+
+        MealItemDao.save(mealId, mealDate);
+      });
+      _reloadSelectedMeals(null);
     }
   }
 
-  void _reloadSelectedMeals() async {
-    _selectedMeals.value = await MealItemDao.loadAllFromDay(_selectedDay!);
+  void _reloadSelectedMeals(DateTime? day) async {
+    if (_rangeSelectionMode == RangeSelectionMode.toggledOn) {
+      _selectedMeals.value = await MealItemDao.loadAllFromRange(_rangeStart!, _rangeEnd!);
+    } else if (_rangeSelectionMode == RangeSelectionMode.toggledOff) {
+      _selectedMeals.value = await MealItemDao.loadAllFromDay(day!);
+    }
     setState(() {
       _markersKey = UniqueKey();
     });
+  }
+
+  Future<void> _displayShoppingListNameInputDialog() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('New shopping list'),
+            content: TextField(
+              controller: _shoppingListNameController,
+              decoration: InputDecoration(hintText: "enter name..."),
+            ),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  primary: Colors.white,
+                ),
+                child: Text('CANCEL'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  primary: Colors.white,
+                ),
+                child: Text('OK'),
+                onPressed: () {
+                  if (_rangeSelectionMode != RangeSelectionMode.toggledOn) {
+                    return;
+                  }
+
+                  if (_rangeStart != null && _rangeEnd == null) {
+
+                  }
+                  // setState(() {
+                  //   codeDialog = valueText;
+                  //   Navigator.pop(context);
+                  // });
+                },
+              ),
+            ],
+          );
+        });
   }
 
   @override

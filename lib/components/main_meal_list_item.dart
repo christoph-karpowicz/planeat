@@ -6,7 +6,7 @@ import 'package:planeat/main.dart';
 import 'package:planeat/views/meal_form.dart';
 
 class MainMealListItem extends StatefulWidget {
-  final VoidCallback _reloadSelectedMeals;
+  final void Function(DateTime) _reloadSelectedMeals;
   final MealItemDto _item;
   DateTime _selectedDay;
   final bool _isRange;
@@ -114,7 +114,7 @@ class _MainMealListItemState extends State<MainMealListItem> {
                           ),
                           onPressed: () => {
                             MealItemDao.deleteById(this.widget._item.id),
-                            this.widget._reloadSelectedMeals()
+                            this.widget._reloadSelectedMeals(widget._selectedDay)
                           },
                         ),
                         alignment: Alignment.centerRight,
@@ -242,7 +242,7 @@ class _MainMealListItemState extends State<MainMealListItem> {
   void _selectNewTime() async {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: TimeOfDay.fromDateTime(widget._item.date),
     );
     if (newTime != null) {
       final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(this.widget._selectedDay);
@@ -251,7 +251,7 @@ class _MainMealListItemState extends State<MainMealListItem> {
       String mealDate = "$selectedDayFormatted $newTimeHour:$newTimeMinutes:00.000Z";
 
       MealItemDao.update(this.widget._item.id, mealDate);
-      this.widget._reloadSelectedMeals();
+      this.widget._reloadSelectedMeals(widget._selectedDay);
       _setTopLayerX(0);
     }
   }
