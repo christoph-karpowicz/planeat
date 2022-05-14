@@ -1,13 +1,13 @@
 class ShoppingItem {
   final int id;
-  final int shoppingListId;
+  int? shoppingListId;
   final String name;
   final String quantity;
   final bool bought;
 
   ShoppingItem({
     required this.id,
-    required this.shoppingListId,
+    this.shoppingListId,
     required this.name,
     required this.quantity,
     required this.bought,

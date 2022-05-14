@@ -38,6 +38,13 @@ class ShoppingListDao {
     });
   }
 
+  static Future<void> update(int id, String name) async {
+    await DatabaseHandler.getDb().execute(
+        "UPDATE shopping_list SET name = ? WHERE id = ?",
+        <Object>[name, id]
+    );
+  }
+
   static Future<void> deleteById(int id) async {
     await DatabaseHandler.getDb().execute(
         "DELETE FROM shopping_item WHERE shopping_list_id = ?",

@@ -37,7 +37,6 @@ class ShoppingItemDto {
     Match? unitMatch = unitRegex.firstMatch(_startingString);
     if (unitMatch != null) {
       _unit = _startingString.substring(unitMatch.start, unitMatch.end).trim();
-      print(_unit);
     }
   }
 
@@ -47,7 +46,6 @@ class ShoppingItemDto {
     if (firstMatch != null) {
       String quantity = _startingString.substring(firstMatch.start, firstMatch.end).replaceAll(r',', '.').trim();
       _quantity = double.parse(quantity);
-      print(_quantity);
     }
   }
 

@@ -7,12 +7,13 @@ import 'package:planeat/components/shopping_list_name_input_dialog.dart';
 import 'package:planeat/db/db_handler.dart';
 import 'package:planeat/db/meal_dao.dart';
 import 'package:planeat/db/meal_item_dao.dart';
-import 'package:planeat/db/shopping_list_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/model/meal.dart';
 import 'package:planeat/utils/date_utils.dart';
 import 'package:planeat/views/meal_form.dart';
 import 'package:planeat/views/meals_view.dart';
+import 'package:planeat/views/shopping_list_form.dart';
+import 'package:planeat/views/shopping_lists_view.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 
@@ -37,11 +38,14 @@ class PlaneatApp extends StatelessWidget {
       routes: {
         CalendarView.routeName: (context) => CalendarView(),
         MealsView.routeName: (context) => MealsView(),
+        ShoppingListsView.routeName: (context) => ShoppingListsView(),
       },
       onGenerateRoute: (RouteSettings settings) {
         var routes = <String, WidgetBuilder>{
           MealFormView.routeName: (context) =>
               MealFormView(arg: settings.arguments as MealFormViewArguments),
+          ShoppingListFormView.routeName: (context) =>
+              ShoppingListFormView(arg: settings.arguments as ShoppingListFormViewArguments),
         };
         WidgetBuilder? builder = routes[settings.name];
         if (builder == null) {

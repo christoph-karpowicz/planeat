@@ -6,6 +6,8 @@ import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/dto/shopping_item_dto.dart';
 import 'package:planeat/model/ingredient.dart';
 import 'package:planeat/utils/date_utils.dart';
+import 'package:planeat/views/shopping_list_form.dart';
+import 'package:planeat/views/shopping_lists_view.dart';
 
 
 class ShoppingListNameInputDialog extends StatefulWidget {
@@ -93,11 +95,19 @@ class _ShoppingListNameInputDialog extends State<ShoppingListNameInputDialog> {
               }
             });
 
-            // await ShoppingListDao.save(name, getSqliteDateTime(DateTime.now()));
+            int shoppingListId = await ShoppingListDao.save(name, getSqliteDateTime(DateTime.now()));
             allIngredientsAggregated.forEach((key, value) async {
-              // await ShoppingItemDao.save(shoppingListId, name, value.toString());
+              await ShoppingItemDao.save(shoppingListId, key, value.toString());
             });
+
             print(allIngredientsAggregated);
+            Navigator.pushNamed(
+                context,
+                ShoppingListFormView.routeName,
+                arguments: ShoppingListFormViewArguments(
+                    shoppingListId,
+                    ShoppingListsView.routeName)
+            );
           },
         ),
       ],

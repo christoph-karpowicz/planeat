@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:planeat/db/meal_dao.dart';
-import 'package:planeat/model/meal.dart';
-import 'package:planeat/views/meal_form.dart';
-import 'package:planeat/views/meals_view.dart';
+import 'package:planeat/db/shopping_list_dao.dart';
+import 'package:planeat/model/shopping_list.dart';
+import 'package:planeat/views/shopping_list_form.dart';
+import 'package:planeat/views/shopping_lists_view.dart';
 
-class MealListItem extends StatefulWidget {
+class ShoppingListListItem extends StatefulWidget {
   final VoidCallback _reload;
-  final Meal _item;
+  final ShoppingList _item;
 
-  MealListItem(
+  ShoppingListListItem(
       this._reload,
       this._item,
       {Key? key}): super(key: key);
 
   @override
-  _MealListItemState createState() => _MealListItemState();
+  _ShoppingListListItemState createState() => _ShoppingListListItemState();
 
 }
 
-class _MealListItemState extends State<MealListItem> {
+class _ShoppingListListItemState extends State<ShoppingListListItem> {
   static final double HEIGHT = 60.0;
 
   double _topLayerX = 0.0;
@@ -58,13 +58,13 @@ class _MealListItemState extends State<MealListItem> {
                         size: 30.0,
                       ),
                       onPressed: () =>
-                        Navigator.pushNamed(
-                            context,
-                            MealFormView.routeName,
-                            arguments: MealFormViewArguments(
-                                widget._item.id,
-                                MealsView.routeName)
-                        ),
+                          Navigator.pushNamed(
+                              context,
+                              ShoppingListFormView.routeName,
+                              arguments: ShoppingListFormViewArguments(
+                                  widget._item.id,
+                                  ShoppingListsView.routeName)
+                          ),
                     ),
                     alignment: Alignment.centerLeft,
                   ),
@@ -87,7 +87,7 @@ class _MealListItemState extends State<MealListItem> {
                         size: 30.0,
                       ),
                       onPressed: () async {
-                        await MealDao.deleteById(this.widget._item.id);
+                        await ShoppingListDao.deleteById(this.widget._item.id);
                         this.widget._reload();
                       },
                     ),
@@ -119,10 +119,10 @@ class _MealListItemState extends State<MealListItem> {
               child: InkWell(
                 onTap: () => Navigator.pushNamed(
                     context,
-                    MealFormView.routeName,
-                    arguments: MealFormViewArguments(
+                    ShoppingListFormView.routeName,
+                    arguments: ShoppingListFormViewArguments(
                         widget._item.id,
-                        MealsView.routeName)
+                        ShoppingListsView.routeName)
                 ),
                 child: Row(
                   children: [
