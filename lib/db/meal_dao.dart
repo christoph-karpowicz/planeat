@@ -5,7 +5,7 @@ class MealDao {
 
   static Future<List<Meal>> loadAll() async {
     final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb()
-        .rawQuery("SELECT * FROM meal WHERE is_deleted = 'FALSE'");
+        .rawQuery("SELECT * FROM meal WHERE is_deleted = 'FALSE' ORDER BY name");
     return List.generate(
         maps.length,
             (i) => Meal(

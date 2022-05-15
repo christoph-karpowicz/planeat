@@ -3,6 +3,7 @@ import 'package:planeat/db/shopping_list_dao.dart';
 import 'package:planeat/model/shopping_list.dart';
 import 'package:planeat/views/shopping_list_form.dart';
 import 'package:planeat/views/shopping_lists_view.dart';
+import 'package:intl/intl.dart';
 
 class ShoppingListListItem extends StatefulWidget {
   final VoidCallback _reload;
@@ -126,13 +127,31 @@ class _ShoppingListListItemState extends State<ShoppingListListItem> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text(
-                        widget._item.name,
-                        style: TextStyle(
-                          fontSize: 17.0,
-                          fontWeight: FontWeight.bold,
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          widget._item.name,
+                          style: TextStyle(
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          '${DateFormat('dd/MM/yyy HH:mm:ss').format(widget._item.date)}',
+                          style: TextStyle(
+                            fontSize: 13.0,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ),
                     ),

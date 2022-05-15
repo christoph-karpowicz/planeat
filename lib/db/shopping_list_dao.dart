@@ -5,13 +5,13 @@ class ShoppingListDao {
 
   static Future<List<ShoppingList>> loadAll() async {
     final List<Map<String, dynamic>> maps = await DatabaseHandler.getDb()
-        .query('shopping_list');
+        .query('shopping_list order by id DESC');
     return List.generate(
         maps.length,
             (i) => ShoppingList(
               id: maps[i]['id'],
               name: maps[i]['name'],
-              date: maps[i]['date'],
+              date: DateTime.parse(maps[i]['date']),
         )
     );
   }
@@ -27,7 +27,7 @@ class ShoppingListDao {
     return ShoppingList(
       id: maps[0]['id'],
       name: maps[0]['name'],
-      date: maps[0]['date'],
+      date: DateTime.parse(maps[0]['date']),
     );
   }
 

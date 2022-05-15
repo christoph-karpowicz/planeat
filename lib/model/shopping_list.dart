@@ -1,7 +1,7 @@
 class ShoppingList {
   final int id;
   final String name;
-  final String date;
+  final DateTime date;
 
   ShoppingList({
     required this.id,

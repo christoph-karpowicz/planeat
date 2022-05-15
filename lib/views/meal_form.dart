@@ -207,7 +207,7 @@ class _MealFormViewState extends State<MealFormView> {
                       ],
                     ),
                 ),
-                Padding(
+                if (_ingredientItems.length > 0 || (editMode || _createMode)) Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
@@ -233,6 +233,16 @@ class _MealFormViewState extends State<MealFormView> {
                       );
                     },
                   )
+                ),
+                if (_ingredientItems.length == 0 && !(editMode || _createMode)) Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "no ingredients were added for this meal",
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey[600],
+                      ),
+                    )
                 ),
               ],
             ),

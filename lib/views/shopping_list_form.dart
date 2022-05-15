@@ -136,7 +136,7 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
                       ],
                     ),
                   ),
-                  Padding(
+                  if (_listItems.length > 0 || editMode) Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ListView.builder(
                         physics: NeverScrollableScrollPhysics(),
@@ -161,6 +161,16 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
                               key: Key(_listItems[index].item.id.toString())
                           );
                         },
+                      )
+                  ),
+                  if (_listItems.length == 0 && !editMode) Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          "there are no items on this list",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                          ),
                       )
                   ),
                 ],

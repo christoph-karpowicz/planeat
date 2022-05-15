@@ -79,6 +79,8 @@ class _CalendarViewState extends State<CalendarView> {
     super.initState();
     print("Init state...");
     _loadMeals();
+    Future.delayed(Duration(milliseconds: 250))
+        .then((value) => _onDaySelected(_selectedDay!, _focusedDay));
   }
 
   void _loadMeals() async {
@@ -321,8 +323,10 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   void _reloadSelectedMeals(DateTime? day) async {
-    if (_rangeSelectionMode == RangeSelectionMode.toggledOn) {
+    if (_rangeSelectionMode == RangeSelectionMode.toggledOn && _rangeEnd != null) {
       _selectedMeals.value = await MealItemDao.loadAllFromRange(_rangeStart!, _rangeEnd!);
+    } else if (_rangeSelectionMode == RangeSelectionMode.toggledOn && _rangeEnd == null) {
+      _selectedMeals.value = await MealItemDao.loadAllFromDay(_rangeStart!);
     } else if (_rangeSelectionMode == RangeSelectionMode.toggledOff) {
       _selectedMeals.value = await MealItemDao.loadAllFromDay(day!);
     }

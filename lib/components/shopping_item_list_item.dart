@@ -114,7 +114,7 @@ class _ShoppingItemListItemState extends State<ShoppingItemListItem> {
                           enabled: widget._isEditable,
                         ),
                       ),
-                      flex: 3,
+                      flex: 5,
                     ),
                     Expanded(
                       child: TextFormField(
@@ -138,7 +138,7 @@ class _ShoppingItemListItemState extends State<ShoppingItemListItem> {
                           enabled: widget._isEditable,
                         ),
                       ),
-                      flex: 1,
+                      flex: 3,
                     ),
                   ],
                 ),

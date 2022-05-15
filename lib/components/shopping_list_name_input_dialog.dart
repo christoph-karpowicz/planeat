@@ -85,8 +85,8 @@ class _ShoppingListNameInputDialog extends State<ShoppingListNameInputDialog> {
             }
 
             allIngredients.forEach((ingredient) {
-              String name = ingredient.name.trim();
-              String quantity = ingredient.quantity.trim();
+              final String name = ingredient.name.trim();
+              final String quantity = ingredient.quantity.trim();
               ShoppingItemDto newItem = new ShoppingItemDto(quantity);
               if (allIngredientsAggregated[name] == null) {
                 allIngredientsAggregated[name] = newItem;
@@ -96,7 +96,7 @@ class _ShoppingListNameInputDialog extends State<ShoppingListNameInputDialog> {
               }
             });
 
-            int shoppingListId = await ShoppingListDao.save(name, getSqliteDateTime(DateTime.now()));
+            final int shoppingListId = await ShoppingListDao.save(name, getSqliteDateTime(DateTime.now()));
             allIngredientsAggregated.forEach((key, value) async {
               await ShoppingItemDao.save(shoppingListId, key, value.toString());
             });
