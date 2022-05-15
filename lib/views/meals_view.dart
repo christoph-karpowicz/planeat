@@ -25,8 +25,7 @@ class _MealsViewState extends State<MealsView> {
   }
 
   void _loadMeals() async {
-    List<Meal> allMeals = await MealDao.loadAll();
-    _availableMeals.value = allMeals.where((meal) => !meal.isDeleted).toList();
+    _availableMeals.value = await MealDao.loadAll();
   }
 
   @override

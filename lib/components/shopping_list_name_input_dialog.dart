@@ -33,6 +33,7 @@ class _ShoppingListNameInputDialog extends State<ShoppingListNameInputDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      scrollable: true,
       title: Text('New shopping list'),
       content: TextField(
         controller: _nameController,

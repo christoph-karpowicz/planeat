@@ -91,6 +91,7 @@ class _MealFormViewState extends State<MealFormView> {
         valueListenable: _isEditable,
         builder: (BuildContext context, bool editMode, _) {
           return SingleChildScrollView(
+            physics: ScrollPhysics(),
             child: Column(
               children: [
 
@@ -209,6 +210,7 @@ class _MealFormViewState extends State<MealFormView> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
                     itemCount: _ingredientItems.length + 1,
                     shrinkWrap: true,
                     itemBuilder: (context, index) {

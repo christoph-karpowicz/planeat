@@ -85,6 +85,7 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
           valueListenable: _isEditable,
           builder: (BuildContext context, bool editMode, _) {
             return SingleChildScrollView(
+              physics: ScrollPhysics(),
               child: Column(
                 children: [
 
@@ -138,6 +139,7 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
                   Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
                         itemCount: _listItems.length + 1,
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
