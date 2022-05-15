@@ -16,7 +16,7 @@ class ShoppingItemDao {
           shoppingListId: maps[i]['shopping_list_id'],
           name: maps[i]['name'],
           quantity: maps[i]['quantity'],
-          bought: maps[i]['bought'] == "true",
+          bought: maps[i]['bought'] == "TRUE",
         )
     );
   }
@@ -28,7 +28,7 @@ class ShoppingItemDao {
     );
   }
 
-  static Future<void> updateBought(int id, bool bought) async {
+  static Future<void> updateBought(int id, String bought) async {
     await DatabaseHandler.getDb().execute(
         "UPDATE shopping_item SET bought = ? WHERE id = ?",
         <Object>[bought, id]

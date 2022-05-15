@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planeat/db/shopping_item_dao.dart';
 import 'package:planeat/model/shopping_item.dart';
 
 class ShoppingItemListItem extends StatefulWidget {
@@ -27,6 +28,15 @@ class _ShoppingItemListItemState extends State<ShoppingItemListItem> {
 
   double _topLayerX = 0.0;
   bool _animation = false;
+  bool _isBought = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _isBought = widget._item.bought;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +149,18 @@ class _ShoppingItemListItemState extends State<ShoppingItemListItem> {
                         ),
                       ),
                       flex: 3,
+                    ),
+                    if (!widget._isEditable) Expanded(
+                      child: IconButton(
+                        icon: Icon(Icons.done_outline),
+                        color: _isBought ? Colors.green : Colors.grey[350],
+                        iconSize: 40.0,
+                        onPressed: () async {
+                          await ShoppingItemDao.updateBought(widget._item.id, _isBought ? "FALSE" : "TRUE");
+                          setState(() => _isBought = !_isBought);
+                        },
+                      ),
+                      flex: 1,
                     ),
                   ],
                 ),
