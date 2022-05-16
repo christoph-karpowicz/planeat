@@ -51,16 +51,10 @@ class _IngredientListItemState extends State<IngredientListItem> {
                       borderRadius: BorderRadius.all(Radius.circular(12.0)),
                       color: Colors.red,
                     ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.delete_forever,
-                        color: Colors.white,
-                        size: 30.0,
-                      ),
-                      onPressed: () => {
-                        // MealItemDao.deleteById(widget._item.id),
-                        // widget._reloadSelectedMeals()
-                      },
+                    child: Icon(
+                      Icons.delete_forever,
+                      color: Colors.white,
+                      size: 30.0,
                     ),
                     alignment: Alignment.centerRight,
                   ),
@@ -87,31 +81,40 @@ class _IngredientListItemState extends State<IngredientListItem> {
                 borderRadius: BorderRadius.circular(12.0),
                 color: Colors.white,
               ),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
+              child: Container(
                 child: Row(
                   children: [
                     Expanded(
-                      child: TextFormField(
-                        controller: widget._nameController,
-                        decoration: InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: widget._isNameError ? Colors.red : Colors.grey,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border(
+                                right: BorderSide(
+                                  color: Colors.grey.shade300,
+                                )
                             )
-                          ),
-                          focusedBorder: OutlineInputBorder(
+                        ),
+                        child: TextFormField(
+                          controller: widget._nameController,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.only(left: 5.0),
+                            enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                color: widget._isNameError ? Colors.red : Colors.grey,
-                                width: 2.0,
+                                color: widget._isNameError ? Colors.red : Colors.grey.shade300,
                               )
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: widget._isNameError ? Colors.red : Colors.grey.shade300,
+                                  width: 2.0,
+                                )
+                            ),
+                            labelText: widget._isEditable ?
+                              (widget._isNameError ? 'name cannot be empty' : 'name') : null,
+                            labelStyle: TextStyle(
+                              color: widget._isNameError ? Colors.red : Colors.green,
+                            ),
+                            enabled: widget._isEditable,
                           ),
-                          labelText: widget._isEditable ?
-                            (widget._isNameError ? 'name cannot be empty' : 'name') : null,
-                          labelStyle: TextStyle(
-                            color: widget._isNameError ? Colors.red : Colors.green,
-                          ),
-                          enabled: widget._isEditable,
                         ),
                       ),
                       flex: 3,
@@ -120,14 +123,15 @@ class _IngredientListItemState extends State<IngredientListItem> {
                       child: TextFormField(
                         controller: widget._quantityController,
                         decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(left: 5.0),
                           enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                color: Colors.grey,
+                                color: Colors.grey.shade300,
                               )
                           ),
                           focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                color: Colors.grey,
+                                color: Colors.grey.shade300,
                                 width: 2.0,
                               )
                           ),

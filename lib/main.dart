@@ -119,7 +119,18 @@ class _CalendarViewState extends State<CalendarView> {
                     shape: BoxShape.circle,
                   ),
                   todayDecoration: BoxDecoration(
-                    color: Colors.lightGreen,
+                    color: Colors.lightGreen.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.lightGreen, width: 1.0),
+                  ),
+                  todayTextStyle: TextStyle(color: Colors.black),
+                  rangeHighlightColor: Colors.green.shade200,
+                  rangeStartDecoration: BoxDecoration(
+                    color: Colors.teal,
+                    shape: BoxShape.circle,
+                  ),
+                  rangeEndDecoration: BoxDecoration(
+                    color: Colors.teal,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -292,6 +303,38 @@ class _CalendarViewState extends State<CalendarView> {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      helpText: "Select meal time",
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            timePickerTheme: TimePickerThemeData(
+              hourMinuteTextColor: MaterialStateColor.resolveWith((states) =>
+              states.contains(MaterialState.selected)
+                  ? Colors.green
+                  : Colors.grey.shade700),
+              hourMinuteColor: MaterialStateColor.resolveWith((states) =>
+              states.contains(MaterialState.selected)
+                  ? Colors.green.withOpacity(0.1)
+                  : Colors.grey.shade700.withOpacity(0.1)),
+              dialHandColor: Colors.green,
+              dialBackgroundColor: Colors.grey[100],
+              dialTextColor: MaterialStateColor.resolveWith((states) =>
+              states.contains(MaterialState.selected)
+                  ? Colors.white
+                  : Colors.black),
+              dayPeriodTextColor: MaterialStateColor.resolveWith((states) =>
+              states.contains(MaterialState.selected)
+                  ? Colors.green
+                  : Colors.grey),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: ButtonStyle(
+                foregroundColor: MaterialStateColor.resolveWith((states) => Colors.green),
+            )),
+          ),
+          child: child ?? Text("An error occurred."),
+        );
+      },
     );
     if (newTime == null) {
       return;
