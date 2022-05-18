@@ -81,102 +81,112 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
           onPressed: () => Navigator.pushNamed(context, widget.arg!.fromRoute),
         ),
       ),
-      body: ValueListenableBuilder(
-          valueListenable: _isEditable,
-          builder: (BuildContext context, bool editMode, _) {
-            return SingleChildScrollView(
-              physics: ScrollPhysics(),
-              child: Column(
-                children: [
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.pushNamed(context, widget.arg!.fromRoute);
+          return true;
+        },
+        child: ValueListenableBuilder(
+            valueListenable: _isEditable,
+            builder: (BuildContext context, bool editMode, _) {
+              return SingleChildScrollView(
+                physics: ScrollPhysics(),
+                child: Column(
+                  children: [
 
-                  // Shopping list name section
-                  Padding(
+                    // Shopping list name section
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                height: 40.0,
+                                alignment: Alignment.bottomLeft,
+                                child: Text("Shopping list name: "),
+                              ),
+                              flex: 2,
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _shoppingListNameController,
+                                decoration: InputDecoration(
+                                    focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: _isShoppingListNameError ? Colors.red : Colors.grey,
+                                          width: 2.0,
+                                        )
+                                    ),
+                                    enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: _isShoppingListNameError ? Colors.red : Colors.grey,
+                                        )
+                                    ),
+                                    enabled: editMode,
+                                    labelText: _isShoppingListNameError ? "shopping list name cannot be empty" : "",
+                                    labelStyle: TextStyle(
+                                        color: _isShoppingListNameError ? Colors.red : null
+                                    )
+                                ),
+                              ),
+                              flex: 3,
+                            ),
+                          ],
+                        )
+                    ),
+
+                    // Shopping items section
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text("Shopping list name: "),
-                            flex: 2,
-                          ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _shoppingListNameController,
-                              decoration: InputDecoration(
-                                  focusedBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: _isShoppingListNameError ? Colors.red : Colors.grey,
-                                        width: 2.0,
-                                      )
-                                  ),
-                                  enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: _isShoppingListNameError ? Colors.red : Colors.grey,
-                                      )
-                                  ),
-                                  enabled: editMode,
-                                  labelText: _isShoppingListNameError ? "shopping list name cannot be empty" : "",
-                                  labelStyle: TextStyle(
-                                      color: _isShoppingListNameError ? Colors.red : null
-                                  )
-                              ),
-                            ),
-                            flex: 3,
-                          ),
+                          Text("Items: "),
                         ],
-                      )
-                  ),
-
-                  // Shopping items section
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Items: "),
-                      ],
+                      ),
                     ),
-                  ),
-                  if (_listItems.length > 0 || editMode) Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: _listItems.length + 1,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          if (index == _listItems.length) {
-                            if (editMode) {
-                              return AddIngredientButton(_addEmptyListItem);
-                            } else {
-                              return SizedBox();
+                    if (_listItems.length > 0 || editMode) Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: _listItems.length + 1,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            if (index == _listItems.length) {
+                              if (editMode) {
+                                return AddIngredientButton(_addEmptyListItem);
+                              } else {
+                                return SizedBox();
+                              }
                             }
-                          }
 
-                          return ShoppingItemListItem(
-                              _removeListItem,
-                              _isEditable.value,
-                              _listItems[index].isNameError,
-                              _listItems[index].item,
-                              _listItems[index].nameController,
-                              _listItems[index].quantityController,
-                              key: Key(_listItems[index].item.id.toString())
-                          );
-                        },
-                      )
-                  ),
-                  if (_listItems.length == 0 && !editMode) Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                          "there are no items on this list",
-                          style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            color: Colors.grey[600],
-                          ),
-                      )
-                  ),
-                ],
-              ),
-            );
-          }
+                            return ShoppingItemListItem(
+                                _removeListItem,
+                                _isEditable.value,
+                                _listItems[index].isNameError,
+                                _listItems[index].item,
+                                _listItems[index].nameController,
+                                _listItems[index].quantityController,
+                                key: Key(_listItems[index].item.id.toString())
+                            );
+                          },
+                        )
+                    ),
+                    if (_listItems.length == 0 && !editMode) Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                            "there are no items on this list",
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[600],
+                            ),
+                        )
+                    ),
+                  ],
+                ),
+              );
+            }
+        ),
       ),
 
       // Buttons
@@ -251,7 +261,7 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
         await ShoppingItemDao.save(this._shoppingList!.id, name, quantity);
       } else {
         ShoppingItem shoppingItem = item.item;
-        await ShoppingItemDao.updateQuantity(shoppingItem.id, quantity);
+        await ShoppingItemDao.update(shoppingItem.id, name, quantity);
       }
     });
     _listItemsToRemove.forEach((id) async => await ShoppingItemDao.deleteById(id));

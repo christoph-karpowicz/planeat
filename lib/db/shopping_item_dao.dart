@@ -35,10 +35,10 @@ class ShoppingItemDao {
     );
   }
 
-  static Future<void> updateQuantity(int id, String quantity) async {
+  static Future<void> update(int id, String name, String quantity) async {
     await DatabaseHandler.getDb().execute(
-        "UPDATE shopping_item SET quantity = ? WHERE id = ?",
-        <Object>[quantity, id]
+        "UPDATE shopping_item SET name = ?, quantity = ? WHERE id = ?",
+        <Object>[name, quantity, id]
     );
   }
 

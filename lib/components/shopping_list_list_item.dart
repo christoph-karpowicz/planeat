@@ -113,7 +113,9 @@ class _ShoppingListListItemState extends State<ShoppingListListItem> {
                 right: 12.0,
               ),
               decoration: BoxDecoration(
-                border: Border.all(),
+                border: Border.all(
+                  color: Colors.grey
+                ),
                 borderRadius: BorderRadius.circular(12.0),
                 color: Colors.white,
               ),
@@ -128,21 +130,24 @@ class _ShoppingListListItemState extends State<ShoppingListListItem> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 1,
+                      flex: 7,
                       child: Container(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text(
-                          widget._item.name,
-                          style: TextStyle(
-                            fontSize: 17.0,
-                            fontWeight: FontWeight.bold,
+                        padding: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 20.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            widget._item.name,
+                            style: TextStyle(
+                              fontSize: 17.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                     ),
 
                     Expanded(
-                      flex: 1,
+                      flex: 5,
                       child: Container(
                         alignment: Alignment.centerRight,
                         padding: EdgeInsets.all(20.0),

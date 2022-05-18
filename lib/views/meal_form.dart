@@ -101,7 +101,11 @@ class _MealFormViewState extends State<MealFormView> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text("Meal name: "),
+                        child: Container(
+                          height: 40.0,
+                          alignment: Alignment.bottomLeft,
+                          child: Text("Meal name: "),
+                        ),
                         flex: 1,
                       ),
                       Expanded(

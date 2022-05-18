@@ -138,7 +138,9 @@ class _MainMealListItemState extends State<MainMealListItem> {
                   bottom: 6.0,
                 ),
                 decoration: BoxDecoration(
-                  border: Border.all(),
+                  border: Border.all(
+                    color: Colors.grey,
+                  ),
                   borderRadius: BorderRadius.circular(12.0),
                   color: Colors.white,
                 ),

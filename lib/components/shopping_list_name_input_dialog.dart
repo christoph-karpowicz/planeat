@@ -4,6 +4,7 @@ import 'package:planeat/db/shopping_item_dao.dart';
 import 'package:planeat/db/shopping_list_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/dto/shopping_item_dto.dart';
+import 'package:planeat/main.dart';
 import 'package:planeat/model/ingredient.dart';
 import 'package:planeat/utils/date_utils.dart';
 import 'package:planeat/views/shopping_list_form.dart';
@@ -107,7 +108,7 @@ class _ShoppingListNameInputDialog extends State<ShoppingListNameInputDialog> {
                 ShoppingListFormView.routeName,
                 arguments: ShoppingListFormViewArguments(
                     shoppingListId,
-                    ShoppingListsView.routeName)
+                    CalendarView.routeName)
             );
           },
         ),

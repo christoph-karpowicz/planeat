@@ -112,7 +112,9 @@ class _MealListItemState extends State<MealListItem> {
                 right: 12.0,
               ),
               decoration: BoxDecoration(
-                border: Border.all(),
+                border: Border.all(
+                  color: Colors.grey,
+                ),
                 borderRadius: BorderRadius.circular(12.0),
                 color: Colors.white,
               ),
