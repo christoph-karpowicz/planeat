@@ -46,19 +46,33 @@ class _ShoppingListsViewState extends State<ShoppingListsView> {
               child: ValueListenableBuilder<List<ShoppingList>>(
                   valueListenable: _shoppingLists,
                   builder: (context, items, _) {
-                    return ListView.builder(
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        return ShoppingListListItem(
-                            _loadShoppingLists,
-                            items[index],
-                            key: Key(items[index].id.toString()));
-                      },
-                      shrinkWrap: true,
-                    );
+                    if (items.length > 0) {
+                      return ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return ShoppingListListItem(
+                              _loadShoppingLists,
+                              items[index],
+                              key: Key(items[index].id.toString()));
+                        },
+                        shrinkWrap: true,
+                      );
+                    } else {
+                      return Container(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                            "there are no shopping lists to choose from",
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[600],
+                            )
+                        ),
+                      );
+                    }
                   }
               ),
             ),
+
             Nav(NavIcon.shopping_lists),
           ]
       ),

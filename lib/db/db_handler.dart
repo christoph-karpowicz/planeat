@@ -21,19 +21,36 @@ class DatabaseHandler {
         bool tablesCreated = false;
         try {
           await db.execute(
-            "CREATE TABLE meal(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', is_deleted BOOLEAN NOT NULL DEFAULT FALSE)",
+            "CREATE TABLE meal(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "name TEXT NOT NULL, "
+                "description TEXT NOT NULL DEFAULT '', "
+                "is_deleted BOOLEAN NOT NULL DEFAULT FALSE)",
           );
           await db.execute(
-            "CREATE TABLE ingredient(id INTEGER PRIMARY KEY AUTOINCREMENT, meal_id INTEGER, name TEXT NOT NULL, quantity TEXT NOT NULL, FOREIGN KEY (meal_id) REFERENCES meal (id))",
+            "CREATE TABLE ingredient(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "meal_id INTEGER, "
+                "name TEXT NOT NULL, "
+                "quantity TEXT NOT NULL, "
+                "FOREIGN KEY (meal_id) REFERENCES meal (id))",
           );
           await db.execute(
-            "CREATE TABLE meal_item(id INTEGER PRIMARY KEY AUTOINCREMENT, meal_id INTEGER NOT NULL, date TEXT NOT NULL, FOREIGN KEY (meal_id) REFERENCES meal (id))",
+            "CREATE TABLE meal_item(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "meal_id INTEGER NOT NULL, "
+                "date TEXT NOT NULL, "
+                "FOREIGN KEY (meal_id) REFERENCES meal (id))",
           );
           await db.execute(
-            "CREATE TABLE shopping_list(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, date TEXT NOT NULL)",
+            "CREATE TABLE shopping_list(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "name TEXT NOT NULL, "
+                "date TEXT NOT NULL)",
           );
           await db.execute(
-            "CREATE TABLE shopping_item(id INTEGER PRIMARY KEY AUTOINCREMENT, shopping_list_id INTEGER NOT NULL, name TEXT NOT NULL, quantity TEXT NOT NULL, bought BOOLEAN NOT NULL DEFAULT FALSE, FOREIGN KEY (shopping_list_id) REFERENCES shopping_list (id))",
+            "CREATE TABLE shopping_item(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "shopping_list_id INTEGER NOT NULL, "
+                "name TEXT NOT NULL, "
+                "quantity TEXT NOT NULL, "
+                "bought BOOLEAN NOT NULL DEFAULT FALSE, "
+                "FOREIGN KEY (shopping_list_id) REFERENCES shopping_list (id))",
           );
           tablesCreated = true;
         } catch (e) {
@@ -44,51 +61,51 @@ class DatabaseHandler {
           return;
         }
 
-        await db.execute(
-          "INSERT INTO meal(name, description) VALUES ('owsianka', 'testowy opis')",
-        );
-        await db.execute(
-          "INSERT INTO meal(name) VALUES ('pyszny ryż z ciecierzycą')",
-        );
-        await db.execute(
-          "INSERT INTO meal(name) VALUES ('kanapki')",
-        );
-        await db.execute(
-          "INSERT INTO meal(name) VALUES ('kotlety')",
-        );
-        await db.execute(
-          "INSERT INTO meal(name) VALUES ('curry')",
-        );
-        await db.execute(
-          "INSERT INTO meal(name) VALUES ('fasola po bretońsku')",
-        );
-        await db.execute(
-          "INSERT INTO meal(name) VALUES ('sałatka jarzynowa')",
-        );
-        await db.execute(
-          "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='owsianka'), 'mleko', '50ml')",
-        );
-        await db.execute(
-          "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='owsianka'), 'płatki owsiane', '150g')",
-        );
-        await db.execute(
-          "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='owsianka'), 'masło orzechowe', '90g')",
-        );
-        await db.execute(
-          "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='kanapki'), 'bułki', '2szt')",
-        );
-        await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-05-03 08:00:00.000Z')",
-        );
-        await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='pyszny ryż z ciecierzycą'), '2022-05-03 15:00:00.000Z')",
-        );
-        await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-05-03 18:00:00.000Z')",
-        );
-        await db.execute(
-          "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='kanapki'), '2022-05-03 20:00:00.000Z')",
-        );
+        // await db.execute(
+        //   "INSERT INTO meal(name, description) VALUES ('owsianka', 'testowy opis')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal(name) VALUES ('pyszny ryż z ciecierzycą')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal(name) VALUES ('kanapki')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal(name) VALUES ('kotlety')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal(name) VALUES ('curry')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal(name) VALUES ('fasola po bretońsku')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal(name) VALUES ('sałatka jarzynowa')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='owsianka'), 'mleko', '50ml')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='owsianka'), 'płatki owsiane', '150g')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='owsianka'), 'masło orzechowe', '90g')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO ingredient(meal_id, name, quantity) VALUES ((SELECT id FROM meal WHERE name='kanapki'), 'bułki', '2szt')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-05-03 08:00:00.000Z')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='pyszny ryż z ciecierzycą'), '2022-05-03 15:00:00.000Z')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='owsianka'), '2022-05-03 18:00:00.000Z')",
+        // );
+        // await db.execute(
+        //   "INSERT INTO meal_item(meal_id, date) VALUES ((SELECT id FROM meal WHERE name='kanapki'), '2022-05-03 20:00:00.000Z')",
+        // );
         print("Database initialized.");
       },
       version: 1,

@@ -47,19 +47,33 @@ class _MealsViewState extends State<MealsView> {
             child: ValueListenableBuilder<List<Meal>>(
               valueListenable: _availableMeals,
               builder: (context, items, _) {
-                return ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    return MealListItem(
-                        _loadMeals,
-                        items[index],
-                        key: Key(items[index].id.toString()));
-                  },
-                  shrinkWrap: true,
-                );
+                if (items.length > 0) {
+                  return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      return MealListItem(
+                          _loadMeals,
+                          items[index],
+                          key: Key(items[index].id.toString()));
+                    },
+                    shrinkWrap: true,
+                  );
+                } else {
+                  return Container(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                        "there are no meals to choose from",
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey[600],
+                        )
+                    ),
+                  );
+                }
               }
             ),
           ),
+
           Nav(NavIcon.meals),
         ]
       ),

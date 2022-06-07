@@ -98,6 +98,7 @@ class CalendarView extends StatefulWidget {
 class _CalendarViewState extends State<CalendarView> {
   final ValueNotifier<List<MealItemDto>> _selectedMeals = ValueNotifier(<MealItemDto>[]);
   final ValueNotifier<List<Meal>> _availableMeals = ValueNotifier(<Meal>[]);
+  bool _loadingMeals = true;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
@@ -116,6 +117,9 @@ class _CalendarViewState extends State<CalendarView> {
 
   void _loadMeals() async {
     _availableMeals.value = await MealDao.loadAll();
+    setState(() {
+      _loadingMeals = false;
+    });
   }
 
   @override
@@ -238,7 +242,7 @@ class _CalendarViewState extends State<CalendarView> {
               ),
             ),
           ),
-          Row(
+          if (_availableMeals.value.length > 0) Row(
             children: [
               Expanded(
                 child: Container(
@@ -292,6 +296,31 @@ class _CalendarViewState extends State<CalendarView> {
               ),
             ],
           ),
+          if (_availableMeals.value.length == 0 && !_loadingMeals) Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: Colors.grey)),
+                  ),
+                  margin: EdgeInsets.only(
+                    left: 10.0,
+                    right: 10.0,
+                  ),
+                  alignment: Alignment.center,
+                  height: 60,
+                  child: Text(
+                    "there are no meals to choose from",
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey[600],
+                    )
+                  ),
+                ),
+              ),
+            ],
+          ),
+
           Nav(NavIcon.calendar),
         ],
       ),
