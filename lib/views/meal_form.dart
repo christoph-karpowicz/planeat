@@ -81,6 +81,7 @@ class _MealFormViewState extends State<MealFormView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_mealName),
+        centerTitle: true,
         backgroundColor: Colors.lightGreen,
         leading: new IconButton(
             icon: new Icon(Icons.arrow_back),

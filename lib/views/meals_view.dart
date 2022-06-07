@@ -33,6 +33,7 @@ class _MealsViewState extends State<MealsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meals'),
+        centerTitle: true,
         backgroundColor: Colors.lightGreen,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),

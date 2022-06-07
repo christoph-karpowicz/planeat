@@ -75,6 +75,7 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_shoppingListName),
+        centerTitle: true,
         backgroundColor: Colors.lightGreen,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),

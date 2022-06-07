@@ -32,6 +32,7 @@ class _ShoppingListsViewState extends State<ShoppingListsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping lists'),
+        centerTitle: true,
         backgroundColor: Colors.lightGreen,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),
