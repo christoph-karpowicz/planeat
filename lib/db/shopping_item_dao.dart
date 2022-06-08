@@ -16,14 +16,14 @@ class ShoppingItemDao {
           shoppingListId: maps[i]['shopping_list_id'],
           name: maps[i]['name'],
           quantity: maps[i]['quantity'],
-          bought: maps[i]['bought'] == "TRUE",
+          bought: (maps[i]['bought'] as String).toLowerCase() == "true",
         )
     );
   }
 
   static Future<void> save(int shoppingListId, String name, String quantity) async {
     await DatabaseHandler.getDb().execute(
-        "INSERT INTO shopping_item(shopping_list_id, name, quantity) VALUES (?, ?, ?)",
+        "INSERT INTO shopping_item(shopping_list_id, name, quantity, bought) VALUES (?, ?, ?, 'FALSE')",
         <Object>[shoppingListId, name, quantity]
     );
   }

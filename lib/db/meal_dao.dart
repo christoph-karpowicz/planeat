@@ -37,6 +37,7 @@ class MealDao {
     return await DatabaseHandler.getDb().insert("meal", {
       "name": name,
       "description": description,
+      "is_deleted": "FALSE"
     });
   }
 

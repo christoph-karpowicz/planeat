@@ -40,42 +40,48 @@ class _MealsViewState extends State<MealsView> {
           onPressed: () => Navigator.pushNamed(context, CalendarView.routeName),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            // Within the `FirstScreen` widget
-            child: ValueListenableBuilder<List<Meal>>(
-              valueListenable: _availableMeals,
-              builder: (context, items, _) {
-                if (items.length > 0) {
-                  return ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      return MealListItem(
-                          _loadMeals,
-                          items[index],
-                          key: Key(items[index].id.toString()));
-                    },
-                    shrinkWrap: true,
-                  );
-                } else {
-                  return Container(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                        "there are no meals to choose from",
-                        style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          color: Colors.grey[600],
-                        )
-                    ),
-                  );
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.pushNamed(context, CalendarView.routeName);
+          return true;
+        },
+        child: Column(
+          children: [
+            Expanded(
+              // Within the `FirstScreen` widget
+              child: ValueListenableBuilder<List<Meal>>(
+                valueListenable: _availableMeals,
+                builder: (context, items, _) {
+                  if (items.length > 0) {
+                    return ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        return MealListItem(
+                            _loadMeals,
+                            items[index],
+                            key: Key(items[index].id.toString()));
+                      },
+                      shrinkWrap: true,
+                    );
+                  } else {
+                    return Container(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                          "there are no meals to choose from",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                          )
+                      ),
+                    );
+                  }
                 }
-              }
+              ),
             ),
-          ),
 
-          Nav(NavIcon.meals),
-        ]
+            Nav(NavIcon.meals),
+          ]
+        ),
       ),
       floatingActionButton: Container(
         margin: EdgeInsets.only(bottom: 50.0),

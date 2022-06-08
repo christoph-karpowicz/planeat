@@ -10,6 +10,7 @@ import 'package:planeat/db/meal_item_dao.dart';
 import 'package:planeat/dto/meal_item_dto.dart';
 import 'package:planeat/model/meal.dart';
 import 'package:planeat/utils/date_utils.dart';
+import 'package:planeat/utils/ui_utils.dart';
 import 'package:planeat/views/meal_form.dart';
 import 'package:planeat/views/meals_view.dart';
 import 'package:planeat/views/shopping_list_form.dart';
@@ -35,37 +36,7 @@ class PlaneatApp extends StatelessWidget {
     return MaterialApp(
       title: 'Planeat',
       initialRoute: CalendarView.routeName,
-      theme: ThemeData.light().copyWith(
-        timePickerTheme: TimePickerThemeData(
-          hourMinuteTextColor: MaterialStateColor.resolveWith((states) =>
-          states.contains(MaterialState.selected)
-              ? Colors.green
-              : Colors.grey.shade700),
-          hourMinuteColor: MaterialStateColor.resolveWith((states) =>
-          states.contains(MaterialState.selected)
-              ? Colors.green.withOpacity(0.1)
-              : Colors.grey.shade700.withOpacity(0.1)),
-          dialHandColor: Colors.green,
-          dialBackgroundColor: Colors.grey[100],
-          dialTextColor: MaterialStateColor.resolveWith((states) =>
-          states.contains(MaterialState.selected)
-              ? Colors.white
-              : Colors.black),
-          dayPeriodTextColor: MaterialStateColor.resolveWith((states) =>
-          states.contains(MaterialState.selected)
-              ? Colors.green
-              : Colors.grey),
-        ),
-        textButtonTheme: TextButtonThemeData(
-            style: ButtonStyle(
-              foregroundColor: MaterialStateColor.resolveWith((states) => Colors.green),
-            )),
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.green,
-          selectionColor: Colors.green,
-          selectionHandleColor: Colors.green,
-        ),
-      ),
+      theme: getThemeData(),
       routes: {
         CalendarView.routeName: (context) => CalendarView(),
         MealsView.routeName: (context) => MealsView(),
@@ -130,7 +101,7 @@ class _CalendarViewState extends State<CalendarView> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          const SizedBox(height: 8.0),
+          SizedBox(height: MediaQuery.of(context).viewPadding.top),
           Stack(
             children: [
               TableCalendar<MealItemDto>(
@@ -364,6 +335,12 @@ class _CalendarViewState extends State<CalendarView> {
       context: context,
       initialTime: TimeOfDay.now(),
       helpText: "Select meal time",
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child ?? Container(),
+        );
+      },
     );
     if (newTime == null) {
       return;

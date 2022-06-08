@@ -88,171 +88,177 @@ class _MealFormViewState extends State<MealFormView> {
             onPressed: () => Navigator.pushNamed(context, widget.arg!.fromRoute),
         ),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: _isEditable,
-        builder: (BuildContext context, bool editMode, _) {
-          return SingleChildScrollView(
-            physics: ScrollPhysics(),
-            child: Column(
-              children: [
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.pushNamed(context, widget.arg!.fromRoute);
+          return true;
+        },
+        child: ValueListenableBuilder(
+          valueListenable: _isEditable,
+          builder: (BuildContext context, bool editMode, _) {
+            return SingleChildScrollView(
+              physics: ScrollPhysics(),
+              child: Column(
+                children: [
 
-                // Meal name section
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 40.0,
-                          alignment: Alignment.bottomLeft,
-                          child: Text("Meal name: "),
-                        ),
-                        flex: 1,
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _mealNameController,
-                          decoration: InputDecoration(
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _isMealNameError ? Colors.red : Colors.grey,
-                                  width: 2.0,
-                                )
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _isMealNameError ? Colors.red : Colors.grey,
-                                )
-                            ),
-                            enabled: editMode || _createMode,
-                            labelText: _isMealNameError ? "meal name cannot be empty" : "",
-                            labelStyle: TextStyle(
-                              color: _isMealNameError ? Colors.red : null
-                            )
+                  // Meal name section
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 40.0,
+                            alignment: Alignment.bottomLeft,
+                            child: Text("Meal name: "),
                           ),
+                          flex: 1,
                         ),
-                        flex: 2,
-                      ),
-                    ],
-                  )
-                ),
-
-                // Meal description section
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text("Description: "),
-                      ),
-                      Expanded(
-                        child: Container(
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            icon: Icon(
-                              _showDescription ? Icons.arrow_circle_up : Icons.arrow_circle_down,
-                              color: _showDescription ? Colors.red : Colors.green),
-                            onPressed: () {
-                              setState(() => _showDescription = !_showDescription);
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                AnimatedSize(
-                  duration: Duration(seconds: 1),
-                  curve: Curves.fastOutSlowIn,
-                  child: Visibility(
-                    visible: _showDescription,
-                    child: Container(
-                      height: _showDescription ? null : 0,
-                      child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  keyboardType: TextInputType.multiline,
-                                  minLines: 6,
-                                  maxLines: null,
-                                  controller: _mealDescriptionController,
-                                  decoration: InputDecoration(
-                                    enabled: editMode || _createMode,
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Colors.grey,
-                                          width: 2.0,
-                                        )
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Colors.grey,
-                                        )
-                                    ),
-                                  ),
-                                ),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _mealNameController,
+                            decoration: InputDecoration(
+                              focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: _isMealNameError ? Colors.red : Colors.grey,
+                                    width: 2.0,
+                                  )
                               ),
-                            ],
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: _isMealNameError ? Colors.red : Colors.grey,
+                                  )
+                              ),
+                              enabled: editMode || _createMode,
+                              labelText: _isMealNameError ? "meal name cannot be empty" : "",
+                              labelStyle: TextStyle(
+                                color: _isMealNameError ? Colors.red : null
+                              )
+                            ),
                           ),
-                      ),
-                    ),
+                          flex: 2,
+                        ),
+                      ],
+                    )
                   ),
-                ),
 
-                // Ingredients section
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  // Meal description section
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text("Ingredients: "),
+                        Expanded(
+                          child: Text("Description: "),
+                        ),
+                        Expanded(
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: Icon(
+                                _showDescription ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+                                color: _showDescription ? Colors.red : Colors.green),
+                              onPressed: () {
+                                setState(() => _showDescription = !_showDescription);
+                              },
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                ),
-                if (_ingredientItems.length > 0 || (editMode || _createMode)) Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: _ingredientItems.length + 1,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      if (index == _ingredientItems.length) {
-                        if (editMode || _createMode) {
-                          return AddIngredientButton(_addEmptyIngredient);
-                        } else {
-                          return SizedBox();
-                        }
-                      }
-
-                      return IngredientListItem(
-                          _removeIngredient,
-                          _isEditable.value || _createMode,
-                          _ingredientItems[index].isNameError,
-                          _ingredientItems[index].item,
-                          _ingredientItems[index].nameController,
-                          _ingredientItems[index].quantityController,
-                          key: Key(_ingredientItems[index].item.id.toString())
-                      );
-                    },
-                  )
-                ),
-                if (_ingredientItems.length == 0 && !(editMode || _createMode)) Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "no ingredients were added for this meal",
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey[600],
+                  ),
+                  AnimatedSize(
+                    duration: Duration(seconds: 1),
+                    curve: Curves.fastOutSlowIn,
+                    child: Visibility(
+                      visible: _showDescription,
+                      child: Container(
+                        height: _showDescription ? null : 0,
+                        child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.multiline,
+                                    minLines: 6,
+                                    maxLines: null,
+                                    controller: _mealDescriptionController,
+                                    decoration: InputDecoration(
+                                      enabled: editMode || _createMode,
+                                      focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.grey,
+                                            width: 2.0,
+                                          )
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.grey,
+                                          )
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ),
                       ),
+                    ),
+                  ),
+
+                  // Ingredients section
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text("Ingredients: "),
+                        ],
+                      ),
+                  ),
+                  if (_ingredientItems.length > 0 || (editMode || _createMode)) Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: _ingredientItems.length + 1,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        if (index == _ingredientItems.length) {
+                          if (editMode || _createMode) {
+                            return AddIngredientButton(_addEmptyIngredient);
+                          } else {
+                            return SizedBox();
+                          }
+                        }
+
+                        return IngredientListItem(
+                            _removeIngredient,
+                            _isEditable.value || _createMode,
+                            _ingredientItems[index].isNameError,
+                            _ingredientItems[index].item,
+                            _ingredientItems[index].nameController,
+                            _ingredientItems[index].quantityController,
+                            key: Key(_ingredientItems[index].item.id.toString())
+                        );
+                      },
                     )
-                ),
-              ],
-            ),
-          );
-        }
+                  ),
+                  if (_ingredientItems.length == 0 && !(editMode || _createMode)) Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "no ingredients were added for this meal",
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey[600],
+                        ),
+                      )
+                  ),
+                ],
+              ),
+            );
+          }
+        ),
       ),
 
       // Buttons

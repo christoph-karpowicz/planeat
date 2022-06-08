@@ -1,5 +1,3 @@
-import 'package:path/path.dart';
-
 class ShoppingItemDto {
   final String _startingString;
   double? _quantity;
@@ -90,8 +88,11 @@ class ShoppingItemDto {
       result = result + _startingString;
     }
 
-    if (_leftovers.length > 0) {
-      String leftovers = _leftovers.map((l) => l.toString()).toList().join(", ");
+    if (_leftovers.length > 0 && result.isNotEmpty) {
+      String leftovers = _leftovers
+          .map((l) => l.toString())
+          .where((l) => l.isNotEmpty)
+          .toList().join(", ");
       result = result + ', ' + leftovers;
     }
 
