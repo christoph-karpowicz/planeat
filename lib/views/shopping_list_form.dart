@@ -147,7 +147,7 @@ class _ShoppingListFormViewState extends State<ShoppingListFormView> {
                       ),
                     ),
                     if (_listItems.length > 0 || editMode) Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0, bottom: 80.0),
                         child: ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: _listItems.length + 1,

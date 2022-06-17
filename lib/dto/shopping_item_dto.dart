@@ -1,4 +1,6 @@
 class ShoppingItemDto {
+  static const String COMMA_SEPARATOR = ", ";
+
   final String _startingString;
   double? _quantity;
   String? _unit;
@@ -31,7 +33,7 @@ class ShoppingItemDto {
   }
 
   void _getUnit() {
-    RegExp unitRegex = new RegExp(r'([a-zA-Z]+$)');
+    RegExp unitRegex = new RegExp(r'([^0-9]+$)');
     Match? unitMatch = unitRegex.firstMatch(_startingString);
     if (unitMatch != null) {
       _unit = _startingString.substring(unitMatch.start, unitMatch.end).trim();
@@ -76,12 +78,12 @@ class ShoppingItemDto {
       if (_quantity! % 1 == 0) {
         result = result + _quantity!.toInt().toString();
       } else {
-        result = result + _quantity.toString();
+        result = result + _quantity!.toStringAsFixed(2);
       }
     }
 
     if (_unit != null) {
-      result = result + _unit!;
+      result = result + " " + _unit!;
     }
 
     if (_quantity == null && _unit == null) {
@@ -92,8 +94,8 @@ class ShoppingItemDto {
       String leftovers = _leftovers
           .map((l) => l.toString())
           .where((l) => l.isNotEmpty)
-          .toList().join(", ");
-      result = result + ', ' + leftovers;
+          .toList().join(COMMA_SEPARATOR);
+      result = result + COMMA_SEPARATOR + leftovers;
     }
 
     return result;

@@ -54,14 +54,17 @@ class _MealsViewState extends State<MealsView> {
                 builder: (context, items, _) {
                   if (items.length > 0) {
                     return ListView.builder(
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        return MealListItem(
-                            _loadMeals,
-                            items[index],
-                            key: Key(items[index].id.toString()));
-                      },
-                      shrinkWrap: true,
+                        itemCount: items.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == items.length) {
+                            return SizedBox(height: 70,);
+                          }
+                          return MealListItem(
+                              _loadMeals,
+                              items[index],
+                              key: Key(items[index].id.toString()));
+                        },
+                        shrinkWrap: true,
                     );
                   } else {
                     return Container(

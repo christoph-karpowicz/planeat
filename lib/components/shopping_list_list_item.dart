@@ -128,11 +128,13 @@ class _ShoppingListListItemState extends State<ShoppingListListItem> {
                         ShoppingListsView.routeName)
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       flex: 7,
                       child: Container(
                         padding: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 20.0),
+                        alignment: Alignment.centerLeft,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Text(
@@ -147,16 +149,38 @@ class _ShoppingListListItemState extends State<ShoppingListListItem> {
                     ),
 
                     Expanded(
-                      flex: 5,
+                      flex: 3,
                       child: Container(
                         alignment: Alignment.centerRight,
-                        padding: EdgeInsets.all(20.0),
-                        child: Text(
-                          '${DateFormat('dd/MM/yyy HH:mm:ss').format(widget._item.date)}',
-                          style: TextStyle(
-                            fontSize: 13.0,
-                            fontStyle: FontStyle.italic,
-                          ),
+                        padding: EdgeInsets.all(10.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${DateFormat('dd/MM/yyyy').format(widget._item.date)}',
+                                  style: TextStyle(
+                                    fontSize: 13.0,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${DateFormat('HH:mm:ss').format(widget._item.date)}',
+                                  style: TextStyle(
+                                    fontSize: 13.0,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),

@@ -128,13 +128,18 @@ class _MealListItemState extends State<MealListItem> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text(
-                        widget._item.name,
-                        style: TextStyle(
-                          fontSize: 17.0,
-                          fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(20.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            widget._item.name,
+                            style: TextStyle(
+                              fontSize: 17.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),

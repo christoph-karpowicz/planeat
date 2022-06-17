@@ -245,6 +245,13 @@ class _MainMealListItemState extends State<MainMealListItem> {
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(widget._item.date),
+      helpText: "Edit meal time",
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child ?? Container(),
+        );
+      },
     );
     if (newTime != null) {
       final String selectedDayFormatted = DateFormat('yyyy-MM-dd').format(this.widget._selectedDay);
