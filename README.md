@@ -10,7 +10,7 @@ A meal planning app created for personal use.
   - ingredient summing while creating a shopping list (for example if two meals have a milk ingredient with quantity of 0,5l, then the shopping list will include 1l of milk), 
   - marking shopping list items as bought. 
 
-![](https://github.com/christoph-karpowicz/planeat/sample/planeat_sample.gif)  
+![planeat_sample](sample/planeat_sample.gif)  
 
 ## Built With
 
